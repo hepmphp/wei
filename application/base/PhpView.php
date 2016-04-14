@@ -1,5 +1,5 @@
 <?php
-namespace core;
+namespace base;
 class PhpView implements ViewInterface {
 
     protected $view_path = '';

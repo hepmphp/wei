@@ -1,5 +1,5 @@
 <?php
-namespace core;
+namespace base;
 class Loader {
     static function autoload($class){
         $class_path = APP_PATH.'/'.str_replace('\\', '/', $class).'.php';

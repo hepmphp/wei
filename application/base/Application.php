@@ -1,19 +1,36 @@
 <?php
-namespace core;
+namespace base;
 
 class Application {
     protected static $instance;
+    protected static $db;
+    public $config;
+    public $app_path;
     public $controller;
     public $action;
 
-    static function getInstance($base_dir = '')
+    static function getInstance($app_path = '')
     {
         if (empty(self::$instance))
         {
-            self::$instance = new self($base_dir);
+            self::$instance = new self($app_path);
         }
         return self::$instance;
     }
+    static function get_db($instance='master'){
+        $master = Application::getInstance()->config['database'][$instance];
+        if(empty(self::$db[$instance])){
+            self::$db[$instance] =   medoo::getInstance($master);
+        }
+        return self::$db[$instance];
+    }
+
+    protected function __construct($app_path)
+    {
+        $this->app_path = $app_path;
+        $this->config = new Config($app_path.'/configs');
+    }
+
 
     public function run(){
 

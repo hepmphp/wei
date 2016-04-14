@@ -1,5 +1,5 @@
 <?php
-namespace core;
+namespace base;
 class SmartyView implements ViewInterface {
 
     protected $tpl_ext = 'php';
