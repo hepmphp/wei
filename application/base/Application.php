@@ -76,8 +76,8 @@ class Application {
             throw new \Exception("{$class} has not method {$method}");
         }
     }
-
-    public function _parse_routes(){
+    
+      public function _parse_routes(){
 
         $routes = Application::getInstance()->config['routes'];
         if(empty($routes))return array();
@@ -94,27 +94,24 @@ class Application {
                         if($key==0)continue;
                         $route =  str_replace('$'.$key,$m_rule,$route);
                     }
+
                 }
+
                 $parse_route = parse_url($route);
                 $_SERVER['PATH_INFO'] = $parse_route['path'];
-                $_SERVER['QUERY_STRING'] = $parse_route['query'];
-                parse_str($parse_route['query'],$_GET);//解析路由配置参数填充到$_GET参数
-                parse_str($parse_route['query'],$_REQUEST);//解析路由配置参数填充到$_REQUEST参数
+                if(isset($parse_route['query'])){
+                    $_SERVER['QUERY_STRING'] = $parse_route['query'];
+                    parse_str($parse_route['query'],$_GET);//解析路由配置参数填充到$_GET参数
+                    parse_str($parse_route['query'],$_REQUEST);//解析路由配置参数填充到$_REQUEST
+                }
             }
-        }
-
-        if(empty($parse_route)){
-            throw new \Exception('the request has not route matched!!!');
         }
     }
 
     public function _parse_path_info(){
-        if(strpos($_SERVER['PATH_INFO'],'_')!=false){
-            $url_path_info = pathinfo($_SERVER['PATH_INFO']);
-            $path_info = explode('_',trim($url_path_info['filename']));
-        }else{
-            $path_info = explode('/',$_SERVER['PATH_INFO']);
-        }
+        $path_info = explode('/',$_SERVER['PATH_INFO']);
         return $path_info;
     }
+
+ 
 }
