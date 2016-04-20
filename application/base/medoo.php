@@ -12,7 +12,7 @@ use PDO;
 
 class medoo
 {
-    // General
+    // Generalcolumn_quote
     protected $database_type;
 
     protected $charset;
@@ -205,7 +205,8 @@ class medoo
 
     protected function column_quote($string)
     {
-        return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\))/', '', $string)) . '"';
+        //return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\))/', '', $string)) . '"';
+        return  str_replace('.', '"."', preg_replace('/(^#|\(JSON\))/', '', $string));
     }
 
     protected function column_push($columns)
