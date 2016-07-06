@@ -1,6 +1,37 @@
 <?php
 namespace base;
 use PDO;
+/***
+ *
+获取第一行数据的第一列 ok
+获取第一行数据 ok
+获取所有数据 ok
+获取所有数据 以某一键作为索引
+获取一列数据 所有 某一键 ok
+获取键值对数组  返回 id 值作为数组的键值， title 作为值的数组，例如 $db->get_pairs("SELECT id, title FROM article");
+//取一行
+$one = $db->get('cgfx_jipiao_order','*',array('id'=>2));
+//取一行的某一列
+$one_col = $db->get('cgfx_jipiao_order','id',array('id'=>2));
+
+$all = $db->select('cgfx_jipiao_order','*',array('id[<]'=>5));
+$all = $db->select('cgfx_jipiao_order','*',array('#id[!]'=>[2,4],'LIMIT'=>1));
+$all = $db->select('cgfx_jipiao_order','order_id',['id'=>[1,2,3,4,5]]);//where_in查询
+$all = $db->select('cgfx_jipiao_order','order_id',['id'=>'1']);//where
+$all = $db->select('cgfx_jipiao_order','*',['id'=>'1']);
+$all = $db->select('cgfx_jipiao_order','*',['linkMan[~]'=>'张','LIMIT'=>1]);//like查询
+
+AND OR GROUP ORDER HAVING LIMIT LIKE MATCH
+多条件查询AND
+多条件查询OR
+分组GROUP
+排序ORDER
+ *
+ *
+ * Class medoo
+ * @package base
+ */
+
 /*!
  * Medoo database framework
  * http://medoo.in
@@ -225,12 +256,20 @@ class medoo
             $string :
             $this->quote($string);
     }
+
+    /**
+     *
+     * @param $data   条件数组    ['id'=>2] ['id[<]'=>5]
+     * @param $conjunctor 连接符号 AND
+     * @param null $outer_conjunctor
+     * @return string
+     */
     protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
     {
         $wheres = array();
         foreach ($data as $key => $value)
         {
-            $type = gettype($value);
+            $type = gettype($value);//获取类型
             if (
                 preg_match("/^(AND|OR)(\s+#.*)?$/i", $key, $relation_match) &&
                 $type == 'array'
@@ -243,9 +282,9 @@ class medoo
             else
             {
                 preg_match('/(#?)([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
-                //[> >= < <= ! <> >< !~] where 条件
+                //(#?)#0个到1个 单词或者任意字符  [> >= < <= ! <> >< !~] where 条件  ['id[<]'=>5]列子 id小于5的
                 $column = $this->column_quote($match[2]);
-                if (isset($match[4]))
+                if (isset($match[4]))//有匹配到  [> >= < <= ! <> >< !~] 操作符的
                 {
                     $operator = $match[4];
                     if ($operator == '!')
@@ -253,14 +292,14 @@ class medoo
                         switch ($type)
                         {
                             case 'NULL':
-                                $wheres[] = $column . ' IS NOT NULL';
+                                $wheres[] = $column . ' IS NOT NULL'; //['id[!]'=>'']
                                 break;
                             case 'array':
-                                $wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';
+                                $wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';//['id[!]'=>[1,2,3]]
                                 break;
                             case 'integer':
                             case 'double':
-                                $wheres[] = $column . ' != ' . $value;
+                                $wheres[] = $column . ' != ' . $value;//['id[!]'=>1]
                                 break;
                             case 'boolean':
                                 $wheres[] = $column . ' != ' . ($value ? '1' : '0');
@@ -270,7 +309,7 @@ class medoo
                                 break;
                         }
                     }
-                    if ($operator == '<>' || $operator == '><')
+                    if ($operator == '<>' || $operator == '><') //['id[><]'=>[2,4]]
                     {
                         if ($type == 'array')
                         {
@@ -288,7 +327,7 @@ class medoo
                             }
                         }
                     }
-                    if ($operator == '~' || $operator == '!~')
+                    if ($operator == '~' || $operator == '!~')//LIKE 查询 ['LinkMan[~]'=>'张三']
                     {
                         if ($type == 'string')
                         {
@@ -333,20 +372,20 @@ class medoo
                     switch ($type)
                     {
                         case 'NULL':
-                            $wheres[] = $column . ' IS NULL';
+                            $wheres[] = $column . ' IS NULL';//['id'=>'']
                             break;
                         case 'array':
-                            $wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';
+                            $wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';//['id'=>[1,2,3,4,,5]]
                             break;
                         case 'integer':
                         case 'double':
-                            $wheres[] = $column . ' = ' . $value;
+                            $wheres[] = $column . ' = ' . $value;//['id'=>1]
                             break;
                         case 'boolean':
                             $wheres[] = $column . ' = ' . ($value ? '1' : '0');
                             break;
                         case 'string':
-                            $wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
+                            $wheres[] = $column . ' = ' . $this->fn_quote($key, $value);//['id'=>[1,2,3,4,,5]]
                             break;
                     }
                 }
@@ -369,7 +408,7 @@ class medoo
             $where_OR = preg_grep("/^OR\s*#?$/i", $where_keys);
             $single_condition = array_diff_key($where, array_flip(
                 explode(' ', 'AND OR GROUP ORDER HAVING LIMIT LIKE MATCH')
-            ));//取出传差集比如id=>1
+            ));//简单的查询条件 比如['id'=>2] id等于2 的 ['id[<]'=>5] id小于5
 
             if ($single_condition != array())
             {
@@ -378,7 +417,9 @@ class medoo
             if (!empty($where_AND))//AND
             {
                 $value = array_values($where_AND);
+                var_dump($value);
                 $where_clause = ' WHERE ' . $this->data_implode($where[ $value[0] ], ' AND');
+
             }
             if (!empty($where_OR))//OR
             {
@@ -825,3 +866,4 @@ class medoo
     private function __clone(){}
     private function __wakeup(){}
 }
+
