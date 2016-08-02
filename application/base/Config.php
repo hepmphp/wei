@@ -1,7 +1,6 @@
 <?php
 
 namespace base;
-
 class Config implements \ArrayAccess
 {
     protected $path;

@@ -51,7 +51,7 @@ class Model{
      * @param $data 数据数组
      * @return mixed
      */
-    public function add($data) {
+    public function insert($data) {
         return $this->db->insert(static::$table,$data);
     }
 
@@ -61,7 +61,7 @@ class Model{
      * @param $where 条件
      * @return mixed
      */
-    public function edit($data,$where) {
+    public function update($data,$where) {
         return $this->db->update(static::$table,$data,$where);
     }
 
@@ -70,7 +70,7 @@ class Model{
      * @param $where 条件
      * @return mixed
      */
-    public function remove($where) {
+    public function delete($where) {
         return $this->db->delete(static::$table,$where);
     }
 }

@@ -33,21 +33,25 @@ class Application {
 
 
     public function run(){
-
-        $this->dispatch();
+        $this->handle_error_and_exception();
         $this->init_dependences();
+        $this->dispatch();
+
+
 //        echo "<pre>";
 //        print_r($_SERVER);
     }
     public function init_dependences(){
+		//载入系统常量
+		include_once $this->app_path.'/configs/const.php';
         //db
         //缓存
     }
 
     public function handle_error_and_exception(){
-        set_error_handler('_error_handler');
-        set_exception_handler('_exception_handler');
-        register_shutdown_function('_shutdown_handler');
+        set_error_handler(array('helpers\Handler','error_handler'));
+        //set_exception_handler('_exception_handler');
+        register_shutdown_function(array('helpers\Handler','shutdown_handler'));
     }
 
     public function dispatch(){
@@ -86,7 +90,7 @@ class Application {
             // Convert wild-cards to RegEx
             $rule = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $rule));
             // Does the RegEx match?
-            if (preg_match('#'.$rule.'$#', $_SERVER['PATH_INFO'],$matchRule))
+            if (isset($_SERVER['PATH_INFO']) && preg_match('#'.$rule.'$#', $_SERVER['PATH_INFO'],$matchRule))
             {
                 if (strpos($route, '$') !== FALSE AND strpos($rule, '(') !== FALSE)
                 {
@@ -109,7 +113,7 @@ class Application {
     }
 
     public function _parse_path_info(){
-        $path_info = explode('/',$_SERVER['PATH_INFO']);
+        $path_info = isset($_SERVER['PATH_INFO'])?explode('/',$_SERVER['PATH_INFO']):array(DEFAULT_CONTROLLER);
         return $path_info;
     }
 

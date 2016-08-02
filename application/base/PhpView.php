@@ -25,10 +25,10 @@ class PhpView implements ViewInterface {
     public function display($view_file) {
         $old_path = getcwd();
         chdir($this->view_path);
-
-        extract($this->vars);
+        if(!empty($this->vars)){
+			extract($this->vars);
+		}
         include "$view_file.php";
-
         chdir($old_path);
     }
 }
