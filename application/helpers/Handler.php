@@ -8,9 +8,9 @@
 namespace helpers;
 /**
  * 错误以及异常处理
-  set_error_handler('_error_handler');
-  set_exception_handler('_exception_handler');
-  register_shutdown_function('_shutdown_handler');
+set_error_handler(array('helpers\Handler','error_handler'));
+//set_exception_handler('_exception_handler');
+register_shutdown_function(array('helpers\Handler','shutdown_handler'));
  *
  * Class Handler
  * @package helpers
@@ -82,6 +82,5 @@ class Handler {
             mkdir(BASE_PATH.'/log',0755,true);
         }
     }
-
 
 }

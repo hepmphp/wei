@@ -4,11 +4,11 @@ namespace helpers;
 /**
  *
  * 统一消息返回
- * Class MsgTools
+ * Class Msg
  * @package helpers
  */
 
-class MsgTools {
+class Msg {
 
 
     /**
@@ -96,6 +96,18 @@ class MsgTools {
             self::exit_msg($msg);
         }else{
             self::show_msg($msg,$url);
+        }
+    }
+
+    public static function status_msg($status,$msg){
+        return array('status'=>$status,'msg'=>$msg);
+    }
+
+    public static function is_error($msg){
+        if($msg['status']===0){
+            return false;
+        }else{
+            return true;//是错误
         }
     }
 

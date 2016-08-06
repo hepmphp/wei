@@ -76,6 +76,7 @@ class Timer
     {
         self::endTime($id);
         self::endMem($id);
+        print_r(get_included_files());
     }
     /**
      * get microtime float

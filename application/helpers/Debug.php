@@ -21,4 +21,20 @@ class Debug {
          );
          return $last_log;
      }
+
+    /**
+     * 打印调用
+     */
+    static function print_stack_trace()
+    {
+        $e = new \Exception();
+        print_r(str_replace('/path/to/code/', '', $e->getTraceAsString()));
+    }
+    /*
+     * 打印被包含的文件
+     */
+    static function print_include_files(){
+        print_r(get_included_files());
+    }
+
 }
