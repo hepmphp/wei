@@ -1,4 +1,8 @@
 /.idea
 /tags
 /tags.idx
-/public
+/public/error_log.log
+/public/log
+/public/static
+/public/templates_c
+/application/models/Table

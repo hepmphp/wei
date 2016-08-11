@@ -2,14 +2,15 @@
 namespace controllers\fenxiao;
 use base;
 use base\BaseController;
+use helpers\Page;
 use helpers\Tools;
 use models\Jipiao\Passenger;
 use helpers\Arr;
 use models\Table;
+use helpers\Input;
 class Jipiao extends BaseController{
     protected $render_engine= 'Smarty';
     public function index(){
-
         echo $this->render_engine;
         echo __METHOD__;
         $data = array(
@@ -22,21 +23,33 @@ class Jipiao extends BaseController{
     }
 
     public function test_list(){
-        $m_jp_order = new Table\Order();
-
+        $m_jp_order = new Table\JipiaoOrder();
+        $per_page = 10;
+        $cur_page = isset($_GET['page'])?$_GET['page']:0;
+        $cur_page = max($cur_page,1);
         $where = [
-            "AND"=>[
-                'order_date[>]'=>time()-100*86400,
-                'order_date[<]'=>time()+100*86400,
-             ],
-            'LIMIT'=>10,
-
+            'OR'=>[
+                'mark'=>2,
+            ],
         ];
-        var_dump($where);
+        $total = $m_jp_order->get_total($where);
+        $where['ORDER'] = ['id DESC'];
+        $where['LIMIT'] = [$cur_page,$per_page];
         $order_list = $m_jp_order->get_list($where,'*');
-        $order_list = $m_jp_order->get_relate_tables($order_list);
-        echo "<pre>";
+//        $order_list = $m_jp_order->get_relate_tables($order_list);
         print_r($order_list);
+        $page_str = Page::get_str($cur_page,$total,$per_page);
+        echo "<div>{$page_str}</div>";
+    }
+
+    public function get_detail(){
+        Input::xss_clean($_GET);
+        Input::trim($_GET);
+        $id = Arr::getValue($_GET,'id');
+        $m_jipiao_order = new Table\JipiaoOrder();
+        $jipiao_order = $m_jipiao_order->find(['id'=>$id]);
+        echo "<pre>";
+        print_r($jipiao_order);
     }
 
 

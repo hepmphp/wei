@@ -5,10 +5,13 @@ use helpers\Debug;
 use helpers\Email;
 use helpers\ErrorCode;
 use helpers\Msg;
+use helpers\Tools;
 use helpers\Validate;
 use helpers\Arr;
 
 class Welcome extends BaseController{
+	public $render_engine = 'php';
+	
     public function index(){
         echo "<pre>";
         Debug::print_stack_trace();
@@ -53,4 +56,11 @@ class Welcome extends BaseController{
         print_r(Arr::index($user_list,'id'));
         print_r(Arr::map($user_list,'id','username'));
     }
+
+    public function table(){
+        $db = \base\Application::get_db();
+        Tools::tables_to_model($db);
+    }
+
+
 }

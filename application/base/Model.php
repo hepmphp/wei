@@ -91,7 +91,7 @@ class Model{
      * @return mixed
      */
     public function get_total($where=array()){
-        $count = $this->db->count(self::$table,$where);
+        $count = $this->db->count(static::$table,$where);
         return $count;
     }
 

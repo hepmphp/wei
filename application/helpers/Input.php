@@ -8,11 +8,11 @@
 namespace helpers;
 
 class Input {
-    public function trim(&$data){
+    public static function trim(&$data){
         $data = array_map('trim',$data);
     }
 
-    public function xss_clean(&$data, array $preserve_key = array()) {
+    public static function xss_clean(&$data, array $preserve_key = array()) {
         if (!is_array($data) || empty($data)) {
             return;
         }

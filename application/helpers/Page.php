@@ -15,7 +15,18 @@ class Page{
     public $last_page  = '&gt;&gt;';
     public $prev_page  = '&lt;';
     public $first_page = '&lt;&lt;';
-    
+    private  static $page_instance=null;
+    public static function get_str($page,$total_num,$page_size=10,$current_url=''){
+        if(!self::$page_instance){
+            self::$page_instance = new self();
+        }
+        self::$page_instance ->setCurrentPage($page);
+        self::$page_instance ->setTotalNum($total_num);
+        self::$page_instance ->setPageSize($page_size);
+        self::$page_instance ->setCurrentUrl();
+        return self::$page_instance->output();
+    }
+
     public function setCurrentPage($page) {
         $this->_current_page = intval($page);
     }
@@ -29,6 +40,7 @@ class Page{
         if ( ! $current_url) {
             $current_url = $_SERVER["REQUEST_URI"];
             $parse_url   = parse_url($current_url);
+
             if ( isset($parse_url["query"]) ) {
                 $urlquery  = preg_replace("/(^|&)page={$this->_current_page}/", "", $parse_url["query"]);
                 $urlquery  = preg_replace("/(^|&)page=/", "", $urlquery);
@@ -115,13 +127,3 @@ class Page{
         }
     }
 }
-
-$page = new Page();
-$total_num = 100;
-$c_page = isset($_GET['page'])?$_GET['page']:1;
-$pagesize = 10;
-$page->setCurrentPage($c_page);
-$page->setTotalNum($total_num);
-$page->setPageSize($pagesize);
-$page->setCurrentUrl();
-echo $page->output();
