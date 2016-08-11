@@ -73,4 +73,27 @@ class Model{
     public function delete($where) {
         return $this->db->delete(static::$table,$where);
     }
+
+    /**
+     * 获取列表数据
+     * @param array $where
+     * @param int $per_page
+     * @param int $offset
+     */
+    public function get_list($where=array(),$fields='*'){
+        $list = $this->db->select(static::$table,$fields,$where);
+        return $list;
+    }
+
+    /**
+     * 统计数量
+     * @param array $where
+     * @return mixed
+     */
+    public function get_total($where=array()){
+        $count = $this->db->count(self::$table,$where);
+        return $count;
+    }
+
+
 }

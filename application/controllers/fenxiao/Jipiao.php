@@ -2,7 +2,10 @@
 namespace controllers\fenxiao;
 use base;
 use base\BaseController;
+use helpers\Tools;
 use models\Jipiao\Passenger;
+use helpers\Arr;
+use models\Table;
 class Jipiao extends BaseController{
     protected $render_engine= 'Smarty';
     public function index(){
@@ -17,6 +20,27 @@ class Jipiao extends BaseController{
         $this->view->assign($data);
         $this->view->display('fenxiao/jipiao_index');
     }
+
+    public function test_list(){
+        $m_jp_order = new Table\Order();
+
+        $where = [
+            "AND"=>[
+                'order_date[>]'=>time()-100*86400,
+                'order_date[<]'=>time()+100*86400,
+             ],
+            'LIMIT'=>10,
+
+        ];
+        var_dump($where);
+        $order_list = $m_jp_order->get_list($where,'*');
+        $order_list = $m_jp_order->get_relate_tables($order_list);
+        echo "<pre>";
+        print_r($order_list);
+    }
+
+
+
 
     public function test_model(){
         $m_passenger = new Passenger();
