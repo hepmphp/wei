@@ -23,24 +23,47 @@ class Jipiao extends BaseController{
 
     public function test_list(){
         $m_jp_order = new Table\Order();
-
         $where = [
             "AND"=>[
                 'order_date[>]'=>time()-100*86400,
                 'order_date[<]'=>time()+100*86400,
              ],
             'LIMIT'=>10,
-
         ];
-        var_dump($where);
         $order_list = $m_jp_order->get_list($where,'*');
-        $order_list = $m_jp_order->get_relate_tables($order_list);
+        $m_jp_order->fill_list($order_list);
         echo "<pre>";
         print_r($order_list);
     }
 
+    public function test_detail(){
+        $m_jp_order = new Table\Order();
+        $id = 1021;
+        $where = array('id'=>$id);
+        $detail = $m_jp_order->find($where);
+        $m_jp_order->fill_detail($detail);
+        echo "<pre>";
+        print_r($detail);
+    }
 
-
+    public function gss_list(){
+        $m_order_gss = new Table\Ordergss();
+        //ä¹˜æœºäºº ä¼šå‘˜å PNR è®¢å•å· gssè®¢å•å· ç¥¨å·ç¥¨å· é¢„è®¢æ—¥æœŸ 2016-08-09 2016-08-16 è®¢å•çŠ¶æ€ è®¢å•æ¥æº
+        // $search_params['psgr_name'] = 'é»„å°‘é›„';
+        $relate_where['ticket_no'] = '7814565546545';
+        $where = [
+            'AND'=>[
+                'id[>]'=>1,
+                'id[<]'=>100,
+            ],
+            'LIMIT'=>10,
+        ];
+        $m_order_gss->fill_search($where,$relate_where);//å¡«å……å…³è”æŸ¥è¯¢
+        $order_gss_list = $m_order_gss->get_list($where,'*');
+        $m_order_gss->fill_list($order_gss_list);        
+        echo "<pre>";
+        print_r($order_gss_list);    
+    }
 
     public function test_model(){
         $m_passenger = new Passenger();
@@ -50,7 +73,6 @@ class Jipiao extends BaseController{
         echo "<Pre>";
         print_R($passenger);
     }
-
     public function booking(){
         echo  __METHOD__;
     }
@@ -58,28 +80,28 @@ class Jipiao extends BaseController{
     public function db(){
         /*
          *
-         *  »ñÈ¡µÚÒ»ÐÐÊý¾ÝµÄµÚÒ»ÁÐ
-            »ñÈ¡µÚÒ»ÐÐÊý¾Ý
-            »ñÈ¡ËùÓÐÊý¾Ý
-            »ñÈ¡ËùÓÐÊý¾Ý ÒÔÄ³Ò»¼ü×÷ÎªË÷Òý
-            »ñÈ¡Ò»ÁÐÊý¾Ý ËùÓÐ»òÕßÄ³Ò»¼ü
-            »ñÈ¡¼üÖµ¶ÔÊý×é  ·µ»Ø id Öµ×÷ÎªÊý×éµÄ¼üÖµ£¬ title ×÷ÎªÖµµÄÊý×é£¬ÀýÈç $db->get_pairs("SELECT id, title FROM article");
+         *  ï¿½ï¿½È¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄµï¿½Ò»ï¿½ï¿½
+            ï¿½ï¿½È¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä³Ò»ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
+            ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½Ä³Ò»ï¿½ï¿½
+            ï¿½ï¿½È¡ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ id Öµï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Öµï¿½ï¿½ title ï¿½ï¿½ÎªÖµï¿½ï¿½ï¿½ï¿½ï¿½é£¬ï¿½ï¿½ï¿½ï¿½ $db->get_pairs("SELECT id, title FROM article");
          */
         $db = base\Application::get_db();
         echo "<pre>";
         print_r($db);
-        //È¡Ò»ÐÐ
+        //È¡Ò»ï¿½ï¿½
         $one = $db->get('cgfx_jipiao_order','*',array('id'=>2));
-        //È¡Ò»ÐÐµÄÄ³Ò»ÁÐ
+        //È¡Ò»ï¿½Ðµï¿½Ä³Ò»ï¿½ï¿½
         $one_col = $db->get('cgfx_jipiao_order','id',array('id'=>2));
 
 //        $all = $db->select('cgfx_jipiao_order','*',array('id[<]'=>5));
 //        $all = $db->select('cgfx_jipiao_order','*',array('#id[!]'=>[2,4],'LIMIT'=>1));
-//        $all = $db->select('cgfx_jipiao_order','order_id',['id'=>[1,2,3,4,5]]);//where_in²éÑ¯
+//        $all = $db->select('cgfx_jipiao_order','order_id',['id'=>[1,2,3,4,5]]);//where_inï¿½ï¿½Ñ¯
 //        $all = $db->select('cgfx_jipiao_order','order_id',['id'=>'1']);//where
 //        $all = $db->select('cgfx_jipiao_order','*',['id'=>'1']);
-//        $all = $db->select('cgfx_jipiao_order','*',['linkMan[~]'=>'ÕÅ','LIMIT'=>1]);
-        $all = $db->select('cgfx_jipiao_order','*',['AND'=>['id[>]'=>1,'linkMan[~]'=>'ÕÅ'],'LIMIT'=>100]);
+//        $all = $db->select('cgfx_jipiao_order','*',['linkMan[~]'=>'ï¿½ï¿½','LIMIT'=>1]);
+        $all = $db->select('cgfx_jipiao_order','*',['AND'=>['id[>]'=>1,'linkMan[~]'=>'ï¿½ï¿½'],'LIMIT'=>100]);
         print_r($db->log());
         print_r($one);
         print_r($one_col);
