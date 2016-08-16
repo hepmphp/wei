@@ -27,16 +27,19 @@ class Jipiao extends BaseController{
         $per_page = 10;
         $cur_page = isset($_GET['page'])?$_GET['page']:0;
         $cur_page = max($cur_page,1);
+        $m_jp_order = new Table\Order();
         $where = [
-            'OR'=>[
-                'mark'=>2,
-            ],
+            "AND"=>[
+                'order_date[>]'=>time()-100*86400,
+                'order_date[<]'=>time()+100*86400,
+             ],
         ];
         $total = $m_jp_order->get_total($where);
         $where['ORDER'] = ['id DESC'];
         $where['LIMIT'] = [$cur_page,$per_page];
         $order_list = $m_jp_order->get_list($where,'*');
-//        $order_list = $m_jp_order->get_relate_tables($order_list);
+        $m_jp_order->fill_list($order_list);
+        echo "<pre>";
         print_r($order_list);
         $page_str = Page::get_str($cur_page,$total,$per_page);
         echo "<div>{$page_str}</div>";
@@ -52,8 +55,34 @@ class Jipiao extends BaseController{
         print_r($jipiao_order);
     }
 
+    public function test_detail(){
+        $m_jp_order = new Table\Order();
+        $id = 1021;
+        $where = array('id'=>$id);
+        $detail = $m_jp_order->find($where);
+        $m_jp_order->fill_detail($detail);
+        echo "<pre>";
+        print_r($detail);
+    }
 
-
+    public function gss_list(){
+        $m_order_gss = new Table\Ordergss();
+        //ä¹˜æœºäºº ä¼šå‘˜å PNR è®¢å•å· gssè®¢å•å· ç¥¨å·ç¥¨å· é¢„è®¢æ—¥æœŸ 2016-08-09 2016-08-16 è®¢å•çŠ¶æ€ è®¢å•æ¥æº
+        // $search_params['psgr_name'] = 'é»„å°‘é›„';
+        $relate_where['ticket_no'] = '7814565546545';
+        $where = [
+            'AND'=>[
+                'id[>]'=>1,
+                'id[<]'=>100,
+            ],
+            'LIMIT'=>10,
+        ];
+        $m_order_gss->fill_search($where,$relate_where);//å¡«å……å…³è”æŸ¥è¯¢
+        $order_gss_list = $m_order_gss->get_list($where,'*');
+        $m_order_gss->fill_list($order_gss_list);        
+        echo "<pre>";
+        print_r($order_gss_list);    
+    }
 
     public function test_model(){
         $m_passenger = new Passenger();
@@ -63,7 +92,6 @@ class Jipiao extends BaseController{
         echo "<Pre>";
         print_R($passenger);
     }
-
     public function booking(){
         echo  __METHOD__;
     }
@@ -71,28 +99,28 @@ class Jipiao extends BaseController{
     public function db(){
         /*
          *
-         *  »ñÈ¡µÚÒ»ÐÐÊý¾ÝµÄµÚÒ»ÁÐ
-            »ñÈ¡µÚÒ»ÐÐÊý¾Ý
-            »ñÈ¡ËùÓÐÊý¾Ý
-            »ñÈ¡ËùÓÐÊý¾Ý ÒÔÄ³Ò»¼ü×÷ÎªË÷Òý
-            »ñÈ¡Ò»ÁÐÊý¾Ý ËùÓÐ»òÕßÄ³Ò»¼ü
-            »ñÈ¡¼üÖµ¶ÔÊý×é  ·µ»Ø id Öµ×÷ÎªÊý×éµÄ¼üÖµ£¬ title ×÷ÎªÖµµÄÊý×é£¬ÀýÈç $db->get_pairs("SELECT id, title FROM article");
+         *  èŽ·å–ç¬¬ä¸€è¡Œæ•°æ®çš„ç¬¬ä¸€åˆ—
+            èŽ·å–ç¬¬ä¸€è¡Œæ•°æ®
+            èŽ·å–æ‰€æœ‰æ•°æ®
+            èŽ·å–æ‰€æœ‰æ•°æ® ä»¥æŸä¸€é”®ä½œä¸ºç´¢å¼•
+            èŽ·å–ä¸€åˆ—æ•°æ® æ‰€æœ‰æˆ–è€…æŸä¸€é”®
+            èŽ·å–é”®å€¼å¯¹æ•°ç»„  è¿”å›ž id å€¼ä½œä¸ºæ•°ç»„çš„é”®å€¼ï¼Œ title ä½œä¸ºå€¼çš„æ•°ç»„ï¼Œä¾‹å¦‚ $db->get_pairs("SELECT id, title FROM article");
          */
         $db = base\Application::get_db();
         echo "<pre>";
         print_r($db);
-        //È¡Ò»ÐÐ
+        //å–ä¸€è¡Œ
         $one = $db->get('cgfx_jipiao_order','*',array('id'=>2));
-        //È¡Ò»ÐÐµÄÄ³Ò»ÁÐ
+        //å–ä¸€è¡Œçš„æŸä¸€åˆ—
         $one_col = $db->get('cgfx_jipiao_order','id',array('id'=>2));
 
 //        $all = $db->select('cgfx_jipiao_order','*',array('id[<]'=>5));
 //        $all = $db->select('cgfx_jipiao_order','*',array('#id[!]'=>[2,4],'LIMIT'=>1));
-//        $all = $db->select('cgfx_jipiao_order','order_id',['id'=>[1,2,3,4,5]]);//where_in²éÑ¯
+//        $all = $db->select('cgfx_jipiao_order','order_id',['id'=>[1,2,3,4,5]]);//where_inæŸ¥è¯¢
 //        $all = $db->select('cgfx_jipiao_order','order_id',['id'=>'1']);//where
 //        $all = $db->select('cgfx_jipiao_order','*',['id'=>'1']);
-//        $all = $db->select('cgfx_jipiao_order','*',['linkMan[~]'=>'ÕÅ','LIMIT'=>1]);
-        $all = $db->select('cgfx_jipiao_order','*',['AND'=>['id[>]'=>1,'linkMan[~]'=>'ÕÅ'],'LIMIT'=>100]);
+//        $all = $db->select('cgfx_jipiao_order','*',['linkMan[~]'=>'å¼ ','LIMIT'=>1]);
+        $all = $db->select('cgfx_jipiao_order','*',['AND'=>['id[>]'=>1,'linkMan[~]'=>'å¼ '],'LIMIT'=>100]);
         print_r($db->log());
         print_r($one);
         print_r($one_col);

@@ -188,12 +188,16 @@ class Arr {
      * @param string|\Closure $key the column name or anonymous function whose result will be used to index the array
      * @return array the indexed array
      */
-    public static function index($array, $key)
+    public static function index($array, $key,$group=false)
     {
         $result = [];
         foreach ($array as $element) {
             $value = static::getValue($element, $key);
-            $result[$value] = $element;
+            if($group){
+                $result[$value][] = $element;
+            }else{
+                $result[$value] = $element;
+            }
         }
 
         return $result;
