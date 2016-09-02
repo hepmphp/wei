@@ -17,11 +17,11 @@ namespace helpers;
   }
  */
 /**
- * Class Validate  ÑéÖ¤¾²Ì¬Àà
+ * Class Validate  éªŒè¯é™æ€ç±»
  */
 class Validate{
-    CONST EXTEND    =    'extraValidate'; //À©Õ¹µÄÑéÖ¤
-    CONST CALLBACK  =    'callback';     //Ê¹ÓÃcallbackÁé»îÑéÖ¤
+    CONST EXTEND    =    'extraValidate'; //æ‰©å±•çš„éªŒè¯
+    CONST CALLBACK  =    'callback';     //ä½¿ç”¨callbackçµæ´»éªŒè¯
     CONST DATE      =    'date';
     CONST TIME      =   'time';
     CONST MOBILE    =   'mobile';
@@ -38,112 +38,142 @@ class Validate{
     CONST INARRAY   =   'inArray';
     CONST INRANGE   =   'inRange';
     public  static $errorMessage = array(
-        self::DATE    =>    'ÈÕÆÚ¸ñÊ½´íÎó',
-        self::TIME    =>    'Ê±¼ä¸ñÊ½´íÎó',
-        self::MOBILE  =>    'ÊÖ»ú¸ñÊ½´íÎó',
-        self::EMAIL   =>    'ÓÊÏä¸ñÊ½´íÎó',
-        self::POST_CODE =>  'ÓÊÕş±àÂë´íÎó',
-        self::IP       =>   'IP¸ñÊ½´íÎó',
-        self::QQ       =>   'QQ¸ñÊ½´íÎó',
-        self::ID_CART  =>   'Éí·İÕËºÅ¸ñÊ½´íÎó',
-        self::TELEPHONE=>   'µç»°ºÅÂë´íÎó',
-        self::URL      =>   'URLµØÖ·´íÎó',
-        self::REQUIRED =>   '×Ö¶Î±ØÌî',
-        self::NUMBERNIC =>  'ÊıÖµÀàĞÍ',
-        self::INTEGER   =>  '±ØĞëÎªÕûĞÍ',
-        self::INARRAY     =>'³¬³ö·¶Î§',
-        self::INRANGE     =>'³¬³ö·¶Î§',
+        self::DATE    =>    'æ—¥æœŸæ ¼å¼é”™è¯¯',
+        self::TIME    =>    'æ—¶é—´æ ¼å¼é”™è¯¯',
+        self::MOBILE  =>    'æ‰‹æœºæ ¼å¼é”™è¯¯',
+        self::EMAIL   =>    'é‚®ç®±æ ¼å¼é”™è¯¯',
+        self::POST_CODE =>  'é‚®æ”¿ç¼–ç é”™è¯¯',
+        self::IP       =>   'IPæ ¼å¼é”™è¯¯',
+        self::QQ       =>   'QQæ ¼å¼é”™è¯¯',
+        self::ID_CART  =>   'èº«ä»½è´¦å·æ ¼å¼é”™è¯¯',
+        self::TELEPHONE=>   'ç”µè¯å·ç é”™è¯¯',
+        self::URL      =>   'URLåœ°å€é”™è¯¯',
+        self::REQUIRED =>   'å­—æ®µå¿…å¡«',
+        self::NUMBERNIC =>  'æ•°å€¼ç±»å‹',
+        self::INTEGER   =>  'å¿…é¡»ä¸ºæ•´å‹',
+        self::INARRAY     =>'è¶…å‡ºèŒƒå›´',
+        self::INRANGE     =>'è¶…å‡ºèŒƒå›´',
     );
+
+     static function check_id_card($idcard){
+        // åªèƒ½æ˜¯18ä½
+        if(strlen($idcard)!=18){
+            return false;
+        }
+        // å–å‡ºæœ¬ä½“ç 
+        $idcard_base = substr($idcard, 0, 17);
+
+        // å–å‡ºæ ¡éªŒç 
+        $verify_code = substr($idcard, 17, 1);
+
+        // åŠ æƒå› å­
+        $factor = array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
+        // æ ¡éªŒç å¯¹åº”å€¼
+        $verify_code_list = array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
+        // æ ¹æ®å‰17ä½è®¡ç®—æ ¡éªŒç 
+        $total = 0;
+        for($i=0; $i<17; $i++){
+            $total += substr($idcard_base, $i, 1)*$factor[$i];
+        }
+        // å–æ¨¡
+        $mod = $total % 11;
+        // æ¯”è¾ƒæ ¡éªŒç 
+        if($verify_code == $verify_code_list[$mod]){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     public static function get_error($type){
         return self::$errorMessage[$type];
     }
     /**
-     *  ¼ì²éÈÕÆÚ xxxx-xx-xx
+     *  æ£€æŸ¥æ—¥æœŸ xxxx-xx-xx
      */
     public static function date($date = ''){
         return preg_match('/^[\d]{4}\-[\d]{1,2}-[\d]{1,2}$/', $date);
     }
     /**
-     *  ¼ì²éÍêÕûÈÕÆÚ xxxx-xx-xx xx:xx:xx
+     *  æ£€æŸ¥å®Œæ•´æ—¥æœŸ xxxx-xx-xx xx:xx:xx
      */
     public static function time($date = ''){
         return preg_match('/^[\d]{4}\-[\d]{1,2}-[\d]{1,2} [\d]{1,2}:[\d]{1,2}:[\d]{1,2}$/', $date);
     }
     /**
-     *  ¼ì²éÊÖ»úºÅÂë
+     *  æ£€æŸ¥æ‰‹æœºå·ç 
      */
     public static  function mobile($mobile = ''){
         return preg_match("/^1[3|4|5|7|8][0-9]\d{8}$/", $mobile);
     }
     /**
-     *  ¼ì²éemail¸ñÊ½
+     *  æ£€æŸ¥emailæ ¼å¼
      */
     public static function email($email = ''){
         return preg_match("/^[\w\-\.]+@[\w\-]+(\.\w+)+$/", $email);
     }
     /**
-     *  ¼ì²éÓÊÕş±àÂë
+     *  æ£€æŸ¥é‚®æ”¿ç¼–ç 
      */
     public static function postalCode($postal_code = ''){
         return preg_match("/[1-9]{1}(\d+){5}/", $postal_code);
     }
     /**
-     *  ¼ì²éipv4 µØÖ·
+     *  æ£€æŸ¥ipv4 åœ°å€
      */
     public static function ip($ip){
         return preg_match("/(\d+){1,3}\.(\d+){1,3}\.(\d+){1,3}\.(\d+){1,3}/", $ip);
     }
     /**
-     *  ¼ì²éqqºÅÂë
+     *  æ£€æŸ¥qqå·ç 
      */
     public static  function qq($qq = ''){
         return preg_match("/^[1-9](\d){4,11}$/", $qq);
     }
     /**
-     *  ¼ì²éÉí·İÖ¤ºÅÂë
+     *  æ£€æŸ¥èº«ä»½è¯å·ç 
      */
     public static  function id_card($id_card = ''){
         return ( preg_match("/^\d{17}(\d|x)$/i", $id_card) || preg_match("/^\d{15}$/i", $id_card) );
     }
     /**
-     *  ¼ì²éĞÔ±ğ
+     *  æ£€æŸ¥æ€§åˆ«
      */
     public static function gender($gender){
         return in_array($gender, array(0, 1));
     }
     /**
-     *  ¼ì²é²úÆ·±àºÅ
+     *  æ£€æŸ¥äº§å“ç¼–å·
      */
     public static function product_no($product_no = ''){
         return preg_match('/^[0-9a-zA-Z-]{1,16}$/', $product_no);
     }
     /**
-     *  ¼ì²éµç»°ºÅÂë
+     *  æ£€æŸ¥ç”µè¯å·ç 
      */
     public static function telephone($telephone = ''){
         return preg_match( "/^[\d]+[\d-]*[\d]$/", $telephone);
     }
     /**
-     *  urlµØÖ·(¼òµ¥¼ì²éÊÇ·ñÒÔhttp://¿ªÍ·)
+     *  urlåœ°å€(ç®€å•æ£€æŸ¥æ˜¯å¦ä»¥http://å¼€å¤´)
      */
     public static function url($url = ''){
         return preg_match('/^http[s]?:\/\/.*?/i', $url);
     }
     /**
-     *  ¼ì²éÊÇ·ñÈ«ÖĞÎÄ
+     *  æ£€æŸ¥æ˜¯å¦å…¨ä¸­æ–‡
      *  ------------------------------
-    ÖĞÎÄË«×Ö½Ú×Ö·û±àÂë·¶Î§
+    ä¸­æ–‡åŒå­—èŠ‚å­—ç¬¦ç¼–ç èŒƒå›´
     1. GBK (GB2312/GB18030)
-    x00-xff GBKË«×Ö½Ú±àÂë·¶Î§
+    x00-xff GBKåŒå­—èŠ‚ç¼–ç èŒƒå›´
     x20-x7f ASCII
-    xa1-xff ÖĞÎÄ gb2312
-    x80-xff ÖĞÎÄ gbk
+    xa1-xff ä¸­æ–‡ gb2312
+    x80-xff ä¸­æ–‡ gbk
     2. UTF-8 (Unicode)
-    u4e00-u9fa5 (ÖĞÎÄ)
-    x3130-x318F (º«ÎÄ
-    xAC00-xD7A3 (º«ÎÄ)
-    u0800-u4e00 (ÈÕÎÄ)
+    u4e00-u9fa5 (ä¸­æ–‡)
+    x3130-x318F (éŸ©æ–‡
+    xAC00-xD7A3 (éŸ©æ–‡)
+    u0800-u4e00 (æ—¥æ–‡)
      */
     public static function chinese($str){
         //return preg_match('/^[\xa1-\xff]+$/', $str);
