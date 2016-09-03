@@ -7,56 +7,96 @@
 
 namespace helpers;
 
-/***
- * if(!Validate::date($data['id'])){
-        print_r(Msg::status_msg(ErrorCode::DB,Validate::get_error(Validate::DATE)));
-   }
-
- if(!Validate::email($data['id'])){
-           print_r(Msg::status_msg(-1,Validate::get_error(Validate::EMAIL)));
-  }
- */
 /**
  * Class Validate  验证静态类
  */
-class Validate{
-    CONST EXTEND    =    'extraValidate'; //扩展的验证
-    CONST CALLBACK  =    'callback';     //使用callback灵活验证
-    CONST DATE      =    'date';
-    CONST TIME      =   'time';
-    CONST MOBILE    =   'mobile';
-    CONST EMAIL     =   'email';
-    CONST POST_CODE =   'ppostalCode';
-    CONST IP        =   'ip';
-    CONST QQ        =   'qq';
-    CONST ID_CART   =   'id_card';
-    CONST TELEPHONE =   'telephone';
-    CONST URL       =   'url';
-    CONST REQUIRED  =   'required';
-    CONST NUMBERNIC =   'numeric';
-    CONST INTEGER   =   'integer';
-    CONST INARRAY   =   'inArray';
-    CONST INRANGE   =   'inRange';
-    public  static $errorMessage = array(
-        self::DATE    =>    '日期格式错误',
-        self::TIME    =>    '时间格式错误',
-        self::MOBILE  =>    '手机格式错误',
-        self::EMAIL   =>    '邮箱格式错误',
-        self::POST_CODE =>  '邮政编码错误',
-        self::IP       =>   'IP格式错误',
-        self::QQ       =>   'QQ格式错误',
-        self::ID_CART  =>   '身份账号格式错误',
-        self::TELEPHONE=>   '电话号码错误',
-        self::URL      =>   'URL地址错误',
-        self::REQUIRED =>   '字段必填',
-        self::NUMBERNIC =>  '数值类型',
-        self::INTEGER   =>  '必须为整型',
-        self::INARRAY     =>'超出范围',
-        self::INRANGE     =>'超出范围',
-    );
+class Validate {
+    /*防止函数输入错误*/
+    CONST BASE64 = 'base64';
+    CONST CHECKIDCARD='check_id_card';
+    CONST CHINESE = 'chinese';
+    CONST DECIMAL = 'decimal';
+    CONST DATE = 'date';
+    CONST EMAIL = 'email';
+    CONST LENGHT ='length';
+    CONST GENDER = 'gender';
+    CONST GREATETHAN='greater_than';
+    CONST IDCARD = 'id_card';
+    CONST INARRAY = 'in_array';
+    CONST INRANGE = 'in_range';
+    CONST INTEGER = 'interger';
+    CONST IP = 'ip';
+    CONST LESSTHAN = 'less_than';
+    CONST MAXLENGTH = 'max_length';
+    CONST MINLENGTH = 'min_length';
+    CONST MOBILE = 'mobile';
+    CONST NUMERIC = 'numeric';
+    CONST POSTALCODE = 'postal_code';
+    CONST PRODUCTNO = 'product_no';
+    CONST QQ = 'qq';
+    CONST REQUIRED = 'required';
+    CONST TELEPHONE = 'telephone';
+    CONST TIME = 'time';
+    CONST URL = 'url';
 
-    public static function get_error($type){
-        return self::$errorMessage[$type];
+    public $param = array();
+    public $rules = array();
+    public $error_list = array();
+    public function set_param($param,$rules){
+        $this->param = $param;
+        $this->rules = $rules;
+    }
+    public function validate(){
+        foreach($this->param as $key=>$value){
+            $call_back = $this->rules[$key][0];//验证的回调函数
+            $error_msg = $this->rules[$key][1];//错误消息
+            $code      = $this->rules[$key][2];//错误代码
+            $data      = $this->rules[$key][3];//参数
+            if(!call_user_func_array(array(__NAMESPACE__ .'\Validate', $call_back), array($value,$data))){
+                $this->set_error($error_msg,$code);
+            }
+        }
+        if(empty($this->error_list)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public function set_error($msg,$status=-1){
+        array_unshift($this->error_list,array('status'=>$status,'msg'=>$msg));
+    }
+    public  function get_error($first=true){
+        return $first?array_pop($this->error_list):$this->error_list;
+    }
+
+    static function check_id_card($idcard){
+        // 只能是18位
+        if(strlen($idcard)!=18){
+            return false;
+        }
+        // 取出本体码
+        $idcard_base = substr($idcard, 0, 17);
+
+        // 取出校验码
+        $verify_code = substr($idcard, 17, 1);
+
+        // 加权因子
+        $factor = array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
+        // 校验码对应值
+        $verify_code_list = array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
+        // 根据前17位计算校验码
+        $total = 0;
+        for($i=0; $i<17; $i++){
+            $total += substr($idcard_base, $i, 1)*$factor[$i];
+        }
+        // 取模
+        $mod = $total % 11;
+        // 比较校验码
+        if($verify_code == $verify_code_list[$mod]){
+            return true;
+        }else{
+            return false;
+        }
     }
     /**
      *  检查日期 xxxx-xx-xx
@@ -85,7 +125,7 @@ class Validate{
     /**
      *  检查邮政编码
      */
-    public static function postalCode($postal_code = ''){
+    public static function postal_code($postal_code = ''){
         return preg_match("/[1-9]{1}(\d+){5}/", $postal_code);
     }
     /**
@@ -149,13 +189,6 @@ class Validate{
         //return preg_match('/^[\xa1-\xff]+$/', $str);
         return preg_match('/^[\x80-\xff]+$/', $str);
     }
-    /**
-     * Required
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
     public static function required($str)
     {
         if ( ! is_array($str))
@@ -167,15 +200,7 @@ class Validate{
             return ( ! empty($str));
         }
     }
-    /**
-     * Minimum Length
-     *
-     * @access	public
-     * @param	string
-     * @param	value
-     * @return	bool
-     */
-    public static function minLength($str, $val)
+    public static function min_length($str, $val)
     {
         if (preg_match("/[^0-9]/", $val))
         {
@@ -187,16 +212,7 @@ class Validate{
         }
         return (strlen($str) < $val) ? FALSE : TRUE;
     }
-    // --------------------------------------------------------------------
-    /**
-     * Max Length
-     *
-     * @access	public
-     * @param	string
-     * @param	value
-     * @return	bool
-     */
-    public static function maxLength($str, $val)
+    public static function max_length($str, $val)
     {
         if (preg_match("/[^0-9]/", $val))
         {
@@ -208,16 +224,7 @@ class Validate{
         }
         return (strlen($str) > $val) ? FALSE : TRUE;
     }
-    // --------------------------------------------------------------------
-    /**
-     * Exact Length
-     *
-     * @access	public
-     * @param	string
-     * @param	value
-     * @return	bool
-     */
-    public static function exactLength($str, $val)
+    public static function length($str, $val)
     {
         if (preg_match("/[^0-9]/", $val))
         {
@@ -229,63 +236,24 @@ class Validate{
         }
         return (strlen($str) != $val) ? FALSE : TRUE;
     }
-    // --------------------------------------------------------------------
-    /**
-     * Numeric
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
+
     public static function numeric($str)
     {
         return (bool)preg_match( '/^[\-+]?[0-9]*\.?[0-9]+$/', $str);
     }
-    // --------------------------------------------------------------------
-    /**
-     * Is Numeric
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
-    public static function isNumeric($str)
+    public static function is_numeric($str)
     {
         return ( ! is_numeric($str)) ? FALSE : TRUE;
     }
-    // --------------------------------------------------------------------
-    /**
-     * Integer
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
     public static function integer($str)
     {
         return (bool) preg_match('/^[\-+]?[0-9]+$/', $str);
     }
-    // --------------------------------------------------------------------
-    /**
-     * Decimal number
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
     public static function decimal($str)
     {
         return (bool) preg_match('/^[\-+]?[0-9]+\.[0-9]+$/', $str);
     }
-    // --------------------------------------------------------------------
-    /**
-     * Greather than
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
-    public static  function greaterThan($str, $min)
+    public static  function greater_than($str, $min)
     {
         if ( ! is_numeric($str))
         {
@@ -293,15 +261,7 @@ class Validate{
         }
         return $str > $min;
     }
-    // --------------------------------------------------------------------
-    /**
-     * Less than
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
-    public static function lessThan($str, $max)
+    public static function less_than($str, $max)
     {
         if ( ! is_numeric($str))
         {
@@ -309,30 +269,80 @@ class Validate{
         }
         return $str < $max;
     }
-    public static function inRange()
+    public static function in_range()
     {
         $args = func_get_args();
         $num = $args[0];
         $min = $args[1][0];
         $max = $args[1][1];
-        return self::lessThan($num,$max)&&self::greaterThan($num,$min);
+        return self::less_than($num,$max)&&self::greater_than($num,$min);
     }
-    /**
-     * Valid Base64
-     *
-     * Tests a string for characters outside of the Base64 alphabet
-     * as defined by RFC 2045 http://www.faqs.org/rfcs/rfc2045
-     *
-     * @access	public
-     * @param	string
-     * @return	bool
-     */
     public static function base64($str)
     {
         return (bool) ! preg_match('/[^a-zA-Z0-9\/\+=]/', $str);
     }
-    public static function inArray($search,$dataArr)
+    public static function in_array($search,$dataArr)
     {
         return in_array($search,$dataArr);
     }
 }
+/**
+
+ if(!Validate::date($data['id'])){
+    print_r(Msg::status_msg(ErrorCode::DB,Validate::get_error(Validate::DATE)));
+  }
+
+   $data = array(
+    'base'=>1,
+    'check_id_card'=>'35052119900',
+    'chinese'=>'124',
+    'decimal'=>'12',
+    'email'=>'hepm',
+    'length'=>123,
+    'gender'=>3,
+    'gt'=>120,
+    'inarr'=>2,
+    'ir'=>1,
+    'int'=>'1',
+    'ip'=>'127.0.01',
+    'ml'=>'11111111111111111111111111111111111111111111111',
+    'minl'=>'1',
+    'mobile'=>'15210',
+    'numeric'=>'12a',
+    'qq'=>'123',
+    'required'=>'1',
+    'date'=>'aaa',
+    'time'=>'aaa',
+    'url'=>'url',
+);
+$validate_rules = [
+    '字段名'=>['验证器','验证提示信息','错误代码','额外参数']
+    'base'         =>[Validate::BASE64,'base64错误',-1],
+    'check_id_card'=>[Validate::CHECKIDCARD,'身份证号码错误',-2],
+    'chinese'      =>[Validate::CHINESE,'姓名输入的必须是中文',-3],
+    'decimal'      =>[Validate::DECIMAL,'必须是小数',-4],
+    'email'        =>[Validate::EMAIL,'邮箱格式错误',-5],
+    'length'       =>[Validate::LENGHT,'长度不能超过10',-6,10],
+    'gender'       =>[Validate::GENDER,'性别错误',-7],
+    'gt'           =>[Validate::GREATETHAN,'数字必须大于100',-8,100],
+    'inarr'        =>[Validate::INARRAY,'值必须在范围内2,3,4,5',-9,[2,3,4,5]],
+    'ir'           =>[Validate::INRANGE,'值必须在90,100之间',-10,[90,10]],
+    'int'          =>[Validate::INTEGER,'值必须是整形',-11],
+    'ip'           =>[Validate::IP,'ip错误',-12],
+    'ml'           =>[Validate::MAXLENGTH,'最长不能超过15',-13,15],
+    'minl'         =>[Validate::MINLENGTH,'最小不能小于2个字符',-14,2],
+    'mobile'       =>[Validate::MOBILE,'手机号码错误',-15],
+    'numeric'      =>[Validate::NUMERIC,'必须是数值型',-16],
+    'qq'           =>[Validate::QQ,'qq错误',-17],
+    'required'     =>[Validate::REQUIRED,'字段不能为空',-18],
+    'date'         =>[Validate::DATE,'日期格式错误',-19],
+    'time'         =>[Validate::TIME,'时间格式错误',-20],
+    'url'          =>[Validate::URL,'url格式错误',-21],
+];
+$validate = new Validate();
+$validate->set_param($data,$validate_rules);
+if(!$validate->validate()){
+    echo "<pre>";
+    print_r($validate->get_error(false));
+}
+ */

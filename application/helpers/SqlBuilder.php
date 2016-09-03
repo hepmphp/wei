@@ -28,11 +28,11 @@ echo $sql_builder->insert_batch('db.table',$data_list);
 */
 
 /****
- *    sqlÓï¾äÉú³ÉÆ÷ À´Ô´CIÖ÷ÒªÓÃÓÚÉú³ÉsqlÓï¾ä
- *    $sql_query->insert_string('db.talbe',$data);   ²åÈëÓï¾ä
- *    $sql_query->update_string('db.table',$data,['id'=>1]); ¸üĞÂÓï¾ä
- *    echo $sql_builder->select('id,type')->from('db.table')->where($data)->where_in('id',[1,2,3])->limit(1)->sql(); ²éÑ¯Óï¾ä
- *    $sql_builder->insert_batch('db.table',$data_list);ÅúÁ¿²åÈë
+ *    sqlè¯­å¥ç”Ÿæˆå™¨ æ¥æºCIä¸»è¦ç”¨äºç”Ÿæˆsqlè¯­å¥
+ *    $sql_query->insert_string('db.talbe',$data);   æ’å…¥è¯­å¥
+ *    $sql_query->update_string('db.table',$data,['id'=>1]); æ›´æ–°è¯­å¥
+ *    echo $sql_builder->select('id,type')->from('db.table')->where($data)->where_in('id',[1,2,3])->limit(1)->sql(); æŸ¥è¯¢è¯­å¥
+ *    $sql_builder->insert_batch('db.table',$data_list);æ‰¹é‡æ’å…¥
  * Class SqlBuilder
  */
 class SqlBuilder{
@@ -40,7 +40,7 @@ class SqlBuilder{
     // The character used for escaping
     public $_escape_char = '`';
 
-    public $dbprefix = '';//Êı¾İ¿âÇ°×º
+    public $dbprefix = '';//æ•°æ®åº“å‰ç¼€
     // Private variables
     public  $_protect_identifiers	= TRUE;
     public  $_reserved_identifiers	= array('*'); // Identifiers that should NOT be escaped
@@ -2653,9 +2653,9 @@ class SqlBuilder{
     }
 
     /***
-     *  ÏÔÊ¾´íÎó
-     * @param $msg    ´íÎó
-     * @param $status ´íÎó×´Ì¬Âë
+     *  æ˜¾ç¤ºé”™è¯¯
+     * @param $msg    é”™è¯¯
+     * @param $status é”™è¯¯çŠ¶æ€ç 
      * @return array
      */
     function display_error($msg,$status=-1){

@@ -3,13 +3,13 @@
 namespace helpers;
 /**
  *
- * Êı×é²Ù×÷Àà
- * ºÏ²¢Êı×é                    Arr::merge()
- * »ñÈ¡Êı×éµÄÄ¬ÈÏÖµ             Arr::getValue($_POST,'username','');
- * É¾³ıÖ¸¶¨¼üÖµµÄÊı×é           Arr::remove($_POST,'useranme');
- * ÓÃÖ¸¶¨¼üÖµÖØĞÂË÷Òı¶şÎ¬Êı×é    Arr::index($user_list,'id');
- * »ñÈ¡Ö¸¶¨½¨µÄËùÓĞÖµ           Arr::getColumn($user_list,'id')
- * ÖØĞÂ´´½¨¶şÎ¬Êı×éÓÃÖ¸¶¨µÄ¼üºÍÖµ Arr::map($user_list,'id','username');
+ * æ•°ç»„æ“ä½œç±»
+ * åˆå¹¶æ•°ç»„                    Arr::merge()
+ * è·å–æ•°ç»„çš„é»˜è®¤å€¼             Arr::getValue($_POST,'username','');
+ * åˆ é™¤æŒ‡å®šé”®å€¼çš„æ•°ç»„           Arr::remove($_POST,'useranme');
+ * ç”¨æŒ‡å®šé”®å€¼é‡æ–°ç´¢å¼•äºŒç»´æ•°ç»„    Arr::index($user_list,'id');
+ * è·å–æŒ‡å®šå»ºçš„æ‰€æœ‰å€¼           Arr::getColumn($user_list,'id')
+ * é‡æ–°åˆ›å»ºäºŒç»´æ•°ç»„ç”¨æŒ‡å®šçš„é”®å’Œå€¼ Arr::map($user_list,'id','username');
  *
  * Class Arr
  * @package helpers
