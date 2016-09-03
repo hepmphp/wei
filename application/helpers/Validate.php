@@ -8,10 +8,10 @@
 namespace helpers;
 
 /**
- * Class Validate  ÑéÖ¤¾²Ì¬Àà
+ * Class Validate  éªŒè¯é™æ€ç±»
  */
 class Validate {
-    /*·ÀÖ¹º¯ÊıÊäÈë´íÎó*/
+    /*é˜²æ­¢å‡½æ•°è¾“å…¥é”™è¯¯*/
     CONST BASE64 = 'base64';
     CONST CHECKIDCARD='check_id_card';
     CONST CHINESE = 'chinese';
@@ -48,10 +48,10 @@ class Validate {
     }
     public function validate(){
         foreach($this->param as $key=>$value){
-            $call_back = $this->rules[$key][0];//ÑéÖ¤µÄ»Øµ÷º¯Êı
-            $error_msg = $this->rules[$key][1];//´íÎóÏûÏ¢
-            $code      = $this->rules[$key][2];//´íÎó´úÂë
-            $data      = $this->rules[$key][3];//²ÎÊı
+            $call_back = $this->rules[$key][0];//éªŒè¯çš„å›è°ƒå‡½æ•°
+            $error_msg = $this->rules[$key][1];//é”™è¯¯æ¶ˆæ¯
+            $code      = $this->rules[$key][2];//é”™è¯¯ä»£ç 
+            $data      = $this->rules[$key][3];//å‚æ•°
             if(!call_user_func_array(array(__NAMESPACE__ .'\Validate', $call_back), array($value,$data))){
                 $this->set_error($error_msg,$code);
             }
@@ -70,28 +70,28 @@ class Validate {
     }
 
     static function check_id_card($idcard){
-        // Ö»ÄÜÊÇ18Î»
+        // åªèƒ½æ˜¯18ä½
         if(strlen($idcard)!=18){
             return false;
         }
-        // È¡³ö±¾ÌåÂë
+        // å–å‡ºæœ¬ä½“ç 
         $idcard_base = substr($idcard, 0, 17);
 
-        // È¡³öĞ£ÑéÂë
+        // å–å‡ºæ ¡éªŒç 
         $verify_code = substr($idcard, 17, 1);
 
-        // ¼ÓÈ¨Òò×Ó
+        // åŠ æƒå› å­
         $factor = array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
-        // Ğ£ÑéÂë¶ÔÓ¦Öµ
+        // æ ¡éªŒç å¯¹åº”å€¼
         $verify_code_list = array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
-        // ¸ù¾İÇ°17Î»¼ÆËãĞ£ÑéÂë
+        // æ ¹æ®å‰17ä½è®¡ç®—æ ¡éªŒç 
         $total = 0;
         for($i=0; $i<17; $i++){
             $total += substr($idcard_base, $i, 1)*$factor[$i];
         }
-        // È¡Ä£
+        // å–æ¨¡
         $mod = $total % 11;
-        // ±È½ÏĞ£ÑéÂë
+        // æ¯”è¾ƒæ ¡éªŒç 
         if($verify_code == $verify_code_list[$mod]){
             return true;
         }else{
@@ -99,91 +99,91 @@ class Validate {
         }
     }
     /**
-     *  ¼ì²éÈÕÆÚ xxxx-xx-xx
+     *  æ£€æŸ¥æ—¥æœŸ xxxx-xx-xx
      */
     public static function date($date = ''){
         return preg_match('/^[\d]{4}\-[\d]{1,2}-[\d]{1,2}$/', $date);
     }
     /**
-     *  ¼ì²éÍêÕûÈÕÆÚ xxxx-xx-xx xx:xx:xx
+     *  æ£€æŸ¥å®Œæ•´æ—¥æœŸ xxxx-xx-xx xx:xx:xx
      */
     public static function time($date = ''){
         return preg_match('/^[\d]{4}\-[\d]{1,2}-[\d]{1,2} [\d]{1,2}:[\d]{1,2}:[\d]{1,2}$/', $date);
     }
     /**
-     *  ¼ì²éÊÖ»úºÅÂë
+     *  æ£€æŸ¥æ‰‹æœºå·ç 
      */
     public static  function mobile($mobile = ''){
         return preg_match("/^1[3|4|5|7|8][0-9]\d{8}$/", $mobile);
     }
     /**
-     *  ¼ì²éemail¸ñÊ½
+     *  æ£€æŸ¥emailæ ¼å¼
      */
     public static function email($email = ''){
         return preg_match("/^[\w\-\.]+@[\w\-]+(\.\w+)+$/", $email);
     }
     /**
-     *  ¼ì²éÓÊÕş±àÂë
+     *  æ£€æŸ¥é‚®æ”¿ç¼–ç 
      */
     public static function postal_code($postal_code = ''){
         return preg_match("/[1-9]{1}(\d+){5}/", $postal_code);
     }
     /**
-     *  ¼ì²éipv4 µØÖ·
+     *  æ£€æŸ¥ipv4 åœ°å€
      */
     public static function ip($ip){
         return preg_match("/(\d+){1,3}\.(\d+){1,3}\.(\d+){1,3}\.(\d+){1,3}/", $ip);
     }
     /**
-     *  ¼ì²éqqºÅÂë
+     *  æ£€æŸ¥qqå·ç 
      */
     public static  function qq($qq = ''){
         return preg_match("/^[1-9](\d){4,11}$/", $qq);
     }
     /**
-     *  ¼ì²éÉí·İÖ¤ºÅÂë
+     *  æ£€æŸ¥èº«ä»½è¯å·ç 
      */
     public static  function id_card($id_card = ''){
         return ( preg_match("/^\d{17}(\d|x)$/i", $id_card) || preg_match("/^\d{15}$/i", $id_card) );
     }
     /**
-     *  ¼ì²éĞÔ±ğ
+     *  æ£€æŸ¥æ€§åˆ«
      */
     public static function gender($gender){
         return in_array($gender, array(0, 1));
     }
     /**
-     *  ¼ì²é²úÆ·±àºÅ
+     *  æ£€æŸ¥äº§å“ç¼–å·
      */
     public static function product_no($product_no = ''){
         return preg_match('/^[0-9a-zA-Z-]{1,16}$/', $product_no);
     }
     /**
-     *  ¼ì²éµç»°ºÅÂë
+     *  æ£€æŸ¥ç”µè¯å·ç 
      */
     public static function telephone($telephone = ''){
         return preg_match( "/^[\d]+[\d-]*[\d]$/", $telephone);
     }
     /**
-     *  urlµØÖ·(¼òµ¥¼ì²éÊÇ·ñÒÔhttp://¿ªÍ·)
+     *  urlåœ°å€(ç®€å•æ£€æŸ¥æ˜¯å¦ä»¥http://å¼€å¤´)
      */
     public static function url($url = ''){
         return preg_match('/^http[s]?:\/\/.*?/i', $url);
     }
     /**
-     *  ¼ì²éÊÇ·ñÈ«ÖĞÎÄ
+     *  æ£€æŸ¥æ˜¯å¦å…¨ä¸­æ–‡
      *  ------------------------------
-    ÖĞÎÄË«×Ö½Ú×Ö·û±àÂë·¶Î§
+    ä¸­æ–‡åŒå­—èŠ‚å­—ç¬¦ç¼–ç èŒƒå›´
     1. GBK (GB2312/GB18030)
-    x00-xff GBKË«×Ö½Ú±àÂë·¶Î§
+    x00-xff GBKåŒå­—èŠ‚ç¼–ç èŒƒå›´
     x20-x7f ASCII
-    xa1-xff ÖĞÎÄ gb2312
-    x80-xff ÖĞÎÄ gbk
+    xa1-xff ä¸­æ–‡ gb2312
+    x80-xff ä¸­æ–‡ gbk
     2. UTF-8 (Unicode)
-    u4e00-u9fa5 (ÖĞÎÄ)
-    x3130-x318F (º«ÎÄ
-    xAC00-xD7A3 (º«ÎÄ)
-    u0800-u4e00 (ÈÕÎÄ)
+    u4e00-u9fa5 (ä¸­æ–‡)
+    x3130-x318F (éŸ©æ–‡
+    xAC00-xD7A3 (éŸ©æ–‡)
+    u0800-u4e00 (æ—¥æ–‡)
      */
     public static function chinese($str){
         //return preg_match('/^[\xa1-\xff]+$/', $str);
@@ -316,28 +316,28 @@ class Validate {
     'url'=>'url',
 );
 $validate_rules = [
-    '×Ö¶ÎÃû'=>['ÑéÖ¤Æ÷','ÑéÖ¤ÌáÊ¾ĞÅÏ¢','´íÎó´úÂë','¶îÍâ²ÎÊı']
-    'base'         =>[Validate::BASE64,'base64´íÎó',-1],
-    'check_id_card'=>[Validate::CHECKIDCARD,'Éí·İÖ¤ºÅÂë´íÎó',-2],
-    'chinese'      =>[Validate::CHINESE,'ĞÕÃûÊäÈëµÄ±ØĞëÊÇÖĞÎÄ',-3],
-    'decimal'      =>[Validate::DECIMAL,'±ØĞëÊÇĞ¡Êı',-4],
-    'email'        =>[Validate::EMAIL,'ÓÊÏä¸ñÊ½´íÎó',-5],
-    'length'       =>[Validate::LENGHT,'³¤¶È²»ÄÜ³¬¹ı10',-6,10],
-    'gender'       =>[Validate::GENDER,'ĞÔ±ğ´íÎó',-7],
-    'gt'           =>[Validate::GREATETHAN,'Êı×Ö±ØĞë´óÓÚ100',-8,100],
-    'inarr'        =>[Validate::INARRAY,'Öµ±ØĞëÔÚ·¶Î§ÄÚ2,3,4,5',-9,[2,3,4,5]],
-    'ir'           =>[Validate::INRANGE,'Öµ±ØĞëÔÚ90,100Ö®¼ä',-10,[90,10]],
-    'int'          =>[Validate::INTEGER,'Öµ±ØĞëÊÇÕûĞÎ',-11],
-    'ip'           =>[Validate::IP,'ip´íÎó',-12],
-    'ml'           =>[Validate::MAXLENGTH,'×î³¤²»ÄÜ³¬¹ı15',-13,15],
-    'minl'         =>[Validate::MINLENGTH,'×îĞ¡²»ÄÜĞ¡ÓÚ2¸ö×Ö·û',-14,2],
-    'mobile'       =>[Validate::MOBILE,'ÊÖ»úºÅÂë´íÎó',-15],
-    'numeric'      =>[Validate::NUMERIC,'±ØĞëÊÇÊıÖµĞÍ',-16],
-    'qq'           =>[Validate::QQ,'qq´íÎó',-17],
-    'required'     =>[Validate::REQUIRED,'×Ö¶Î²»ÄÜÎª¿Õ',-18],
-    'date'         =>[Validate::DATE,'ÈÕÆÚ¸ñÊ½´íÎó',-19],
-    'time'         =>[Validate::TIME,'Ê±¼ä¸ñÊ½´íÎó',-20],
-    'url'          =>[Validate::URL,'url¸ñÊ½´íÎó',-21],
+    'å­—æ®µå'=>['éªŒè¯å™¨','éªŒè¯æç¤ºä¿¡æ¯','é”™è¯¯ä»£ç ','é¢å¤–å‚æ•°']
+    'base'         =>[Validate::BASE64,'base64é”™è¯¯',-1],
+    'check_id_card'=>[Validate::CHECKIDCARD,'èº«ä»½è¯å·ç é”™è¯¯',-2],
+    'chinese'      =>[Validate::CHINESE,'å§“åè¾“å…¥çš„å¿…é¡»æ˜¯ä¸­æ–‡',-3],
+    'decimal'      =>[Validate::DECIMAL,'å¿…é¡»æ˜¯å°æ•°',-4],
+    'email'        =>[Validate::EMAIL,'é‚®ç®±æ ¼å¼é”™è¯¯',-5],
+    'length'       =>[Validate::LENGHT,'é•¿åº¦ä¸èƒ½è¶…è¿‡10',-6,10],
+    'gender'       =>[Validate::GENDER,'æ€§åˆ«é”™è¯¯',-7],
+    'gt'           =>[Validate::GREATETHAN,'æ•°å­—å¿…é¡»å¤§äº100',-8,100],
+    'inarr'        =>[Validate::INARRAY,'å€¼å¿…é¡»åœ¨èŒƒå›´å†…2,3,4,5',-9,[2,3,4,5]],
+    'ir'           =>[Validate::INRANGE,'å€¼å¿…é¡»åœ¨90,100ä¹‹é—´',-10,[90,10]],
+    'int'          =>[Validate::INTEGER,'å€¼å¿…é¡»æ˜¯æ•´å½¢',-11],
+    'ip'           =>[Validate::IP,'ipé”™è¯¯',-12],
+    'ml'           =>[Validate::MAXLENGTH,'æœ€é•¿ä¸èƒ½è¶…è¿‡15',-13,15],
+    'minl'         =>[Validate::MINLENGTH,'æœ€å°ä¸èƒ½å°äº2ä¸ªå­—ç¬¦',-14,2],
+    'mobile'       =>[Validate::MOBILE,'æ‰‹æœºå·ç é”™è¯¯',-15],
+    'numeric'      =>[Validate::NUMERIC,'å¿…é¡»æ˜¯æ•°å€¼å‹',-16],
+    'qq'           =>[Validate::QQ,'qqé”™è¯¯',-17],
+    'required'     =>[Validate::REQUIRED,'å­—æ®µä¸èƒ½ä¸ºç©º',-18],
+    'date'         =>[Validate::DATE,'æ—¥æœŸæ ¼å¼é”™è¯¯',-19],
+    'time'         =>[Validate::TIME,'æ—¶é—´æ ¼å¼é”™è¯¯',-20],
+    'url'          =>[Validate::URL,'urlæ ¼å¼é”™è¯¯',-21],
 ];
 $validate = new Validate();
 $validate->set_param($data,$validate_rules);
