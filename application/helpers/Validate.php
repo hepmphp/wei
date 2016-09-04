@@ -18,7 +18,7 @@ class Validate {
     CONST DECIMAL = 'decimal';
     CONST DATE = 'date';
     CONST EMAIL = 'email';
-    CONST LENGHT ='length';
+    CONST LENGTH ='length';
     CONST GENDER = 'gender';
     CONST GREATETHAN='greater_than';
     CONST IDCARD = 'id_card';
@@ -39,21 +39,95 @@ class Validate {
     CONST TIME = 'time';
     CONST URL = 'url';
 
+    public  function get_default_status($callback){
+        $default_status = [
+            Validate::BASE64     =>-1,
+            Validate::CHECKIDCARD=>-2,
+            Validate::CHINESE    =>-3,
+            Validate::DECIMAL    =>-4,
+            Validate::EMAIL      =>-5,
+            Validate::LENGTH     =>-6,
+            Validate::GENDER     =>-7,
+            Validate::GREATETHAN =>-8,
+            Validate::INARRAY    =>-9,
+            Validate::INRANGE    =>-10,
+            Validate::INTEGER    =>-11,
+            Validate::IP         =>-12,
+            Validate::MAXLENGTH  =>-13,
+            Validate::MINLENGTH  =>-14 ,
+            Validate::MOBILE     =>-15,
+            Validate::NUMERIC    =>-16,
+            Validate::QQ         =>-17,
+            Validate::REQUIRED   =>-18,
+            Validate::DATE       =>-19,
+            Validate::TIME       =>-20,
+            Validate::URL        =>-21
+        ];
+        $error_status =  $default_status[$callback]? $default_status[$callback]:-1;
+        return $error_status;
+    }
+
+    public  function get_default_msg($callback,$data=''){
+        $default_msg = [
+            Validate::BASE64     =>'输入的base64错误',
+            Validate::CHECKIDCARD=>'输入的身份证号码错误',
+            Validate::CHINESE    =>'输入的必须是中文',
+            Validate::DECIMAL    =>'输入的必须是小数',
+            Validate::EMAIL      =>'输入的邮箱格式错误',
+            Validate::LENGTH     =>"输入的长度不等于%s",
+            Validate::GENDER     =>'输入的性别错误',
+            Validate::GREATETHAN =>'输入的数字必须大于%s',
+            Validate::INARRAY    =>'输入的值必须在范围内%s',
+            Validate::INRANGE    =>'输入的值必须在%s之间',
+            Validate::INTEGER    =>'输入的值必须是整形',
+            Validate::IP         =>'输入的ip错误',
+            Validate::MAXLENGTH  =>'输入的最长不能超过%s',
+            Validate::MINLENGTH  =>'输入的最小不能小于2个字符' ,
+            Validate::MOBILE     =>'输入的手机号码错误',
+            Validate::NUMERIC    =>'输入的必须是数值型' ,
+            Validate::QQ         =>'输入的qq错误',
+            Validate::REQUIRED   =>'输入的字段不能为空',
+            Validate::DATE       =>'输入的日期格式错误',
+            Validate::TIME       =>'输入的时间格式错误',
+            Validate::URL        =>'输入的url格式错误'
+        ];
+        $error_msg =  $default_msg[$callback]? $default_msg[$callback]:'';
+        if(!empty($data)){
+            $error_msg = is_array($data)?sprintf($error_msg,implode(',',$data)):sprintf($error_msg,$data);
+        }
+        return $error_msg;
+    }
     public $param = array();
     public $rules = array();
     public $error_list = array();
+
+    public function __construct($param='',$rules=''){
+        $this->param = $param;
+        $this->rules = $rules;
+    }
+
     public function set_param($param,$rules){
         $this->param = $param;
         $this->rules = $rules;
     }
     public function validate(){
+        $class_methods = get_class_methods($this);
         foreach($this->param as $key=>$value){
-            $call_back = $this->rules[$key][0];//验证的回调函数
-            $error_msg = $this->rules[$key][1];//错误消息
-            $code      = $this->rules[$key][2];//错误代码
-            $data      = $this->rules[$key][3];//参数
-            if(!call_user_func_array(array(__NAMESPACE__ .'\Validate', $call_back), array($value,$data))){
-                $this->set_error($error_msg,$code);
+            if(!in_array( $this->rules[$key][0],$class_methods)){
+                foreach($this->rules[$key] as $rule){
+                    $call_back = $rule[0];//验证的回调函数
+                    $data      = $rule[3];//参数
+                    $error_msg = $rule[1]?$rule[1]:$this->get_default_msg($call_back,$data);//错误消息
+                    $status    = $rule[2]?$rule[2]:$this->get_default_status($call_back,$data);//错误代码
+
+                    $this->validate_callback($call_back,$value,$error_msg,$status,$data);
+                }
+            }else{
+                $call_back = $this->rules[$key][0];//验证的回调函数
+                $data      = $this->rules[$key][3];//参数
+                $error_msg = $this->rules[$key][1]?$this->rules[$key][1]:$this->get_default_msg($call_back,$data);//错误消息
+                $status    = $this->rules[$key][2]?$this->rules[$key][2]:$this->get_default_status($call_back,$data);//错误代码
+                $this->validate_callback($call_back,$value,$error_msg,$status,$data);
             }
         }
         if(empty($this->error_list)){
@@ -62,12 +136,20 @@ class Validate {
             return false;
         }
     }
+
+    public function validate_callback($call_back,$value,$error_msg,$status,$data){
+        if(!call_user_func_array(array(__NAMESPACE__ .'\Validate', $call_back), array($value,$data))){
+            $this->set_error($error_msg,$status);
+        }
+    }
     public function set_error($msg,$status=-1){
         array_unshift($this->error_list,array('status'=>$status,'msg'=>$msg));
     }
     public  function get_error($first=true){
         return $first?array_pop($this->error_list):$this->error_list;
     }
+
+
 
     static function check_id_card($idcard){
         // 只能是18位
