@@ -10,11 +10,16 @@ class Tools{
      * 通用表模型生成工具
      * @param $db
      */
-    public static  function tables_to_model($db){
+    public static  function tables_to_model($db,$table=''){
         $db_name = 'cgfx';
         $tables_path = APP_PATH.'/models/Table/';
         $db->query("USE {$db_name}");
-        $result = $db->query("show tables")->fetchAll();
+        if(!empty($table)){
+            $result = $db->query("show tables like '{$table}'")->fetchAll();
+        }else{
+            $result = $db->query("show tables")->fetchAll();
+        }
+
         $all_tables = Arr::getColumn($result,'0');
         foreach($all_tables as $table){
             $model_table = str_replace("\t",'',ucwords(str_replace(array('_'),array("\t"),strstr($table,'_'))));

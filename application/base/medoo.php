@@ -62,13 +62,17 @@ class medoo
         'query'=>array(),
         'time_cost'=>array(),
     );
+
+    public $cache_instance = null;
+
     // Variable
     protected $time_logs = array();
     protected $debug_mode = false;
     /*存储对象的实例*/
     private static $_instances = array();
-    private  function __construct($options = null)
+    private  function __construct($options = null,$cache_instance=null)
     {
+        $this->cache_instance = $cache_instance;
         try {
             $commands = array();
             if (is_string($options) && !empty($options))
@@ -622,10 +626,21 @@ class medoo
     }
     public function select($table, $join, $columns = null, $where = null)
     {
-        $query = $this->query($this->select_context($table, $join, $columns, $where));
-        return $query ? $query->fetchAll(
-            (is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
-        ) : false;
+        $sql = $this->select_context($table, $join, $columns, $where);
+        $cache_key = md5($sql);
+        $result = array();
+        if($this->cache_instance){
+            $result = $this->cache_instance->get($cache_key);
+        }
+        if(empty($result)){
+
+            $query = $this->query($sql);
+            $result = $query ? $query->fetchAll((is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC) : false;
+            if($this->cache_instance){
+                $this->cache_instance->set($cache_key,$result,86400);
+            }
+        }
+        return $result;
     }
     public function insert($table, $datas)
     {
@@ -748,28 +763,37 @@ class medoo
     }
     public function get($table, $join = null, $column = null, $where = null)
     {
-        $query = $this->query($this->select_context($table, $join, $column, $where) . ' LIMIT 1');
-        if ($query)
-        {
-            $data = $query->fetchAll(PDO::FETCH_ASSOC);
-            if (isset($data[0]))
+        $sql = $this->select_context($table, $join, $column, $where) . ' LIMIT 1';
+        $cache_key = md5($sql);
+        $result = false;
+        if($this->cache_instance){
+            $result = $this->cache_instance->get($cache_key);
+        }
+        if(empty($result)){
+            $query = $this->query($sql);
+            if ($query)
             {
-                $column = $where == null ? $join : $column;
-                if (is_string($column) && $column != '*')
+                $data = $query->fetchAll(PDO::FETCH_ASSOC);
+                if (isset($data[0]))
                 {
-                    return $data[ 0 ][ $column ];
+                    $column = $where == null ? $join : $column;
+                    if (is_string($column) && $column != '*')
+                    {
+                        $result = $data[ 0 ][ $column ];
+                    }else{
+                        $result = $data[0];
+                    }
+                    if($this->cache_instance){
+                        $this->cache_instance->set($cache_key,$result,86400);
+                    }
                 }
-                return $data[ 0 ];
-            }
-            else
-            {
-                return false;
+                else
+                {
+                    $result = false;
+                }
             }
         }
-        else
-        {
-            return false;
-        }
+        return $result;
     }
     public function has($table, $join, $where = null)
     {
@@ -850,9 +874,9 @@ class medoo
         }
         return $output;
     }
-    public static function getInstance($config)
+    public static function getInstance($config,$cache_instance=null)
     {
-        $instance = new self($config);
+        $instance = new self($config,$cache_instance);
         return $instance;
     }
     /**

@@ -1,12 +1,13 @@
 <?php 
 namespace helper;
+
 class SessionTools{
 	 /**
-     * @brief   diy_session_destroy     ³¹µ××¢Ïúsession
+     * @brief   diy_session_destroy     å½»åº•æ³¨é”€session
      *
      * @Returns NUL   
      */
-    public function static session_destroy(){
+    public static function  session_destroy(){
         $_SESSION = array();
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
@@ -14,28 +15,26 @@ class SessionTools{
             );
         }
         session_destroy();
-
-        $this->cncn_exit('µÇÂ¼ÒÑ¹ıÆÚ£¬ÇëË¢ĞÂÖØĞÂµÇÂ¼');
     }
 
 
     /**
-     * @brief   cncn_session_start   ×Ô¶¨Òå¿ªÆôsession
+     * @brief   cncn_session_start   è‡ªå®šä¹‰å¼€å¯session
      *
-     * @Param   $limiter            ä¯ÀÀÆ÷»º´æ£¬Ä¬ÈÏsession_start()ÊÇnocache
+     * @Param   $limiter            æµè§ˆå™¨ç¼“å­˜ï¼Œé»˜è®¤session_start()æ˜¯nocache
      *
      * @Returns    
      */
-    public function static session_start($limiter = ''){
+    public static function  session_start($limiter = ''){
         if (session_id() == '') {
-            //ini_set('session.name', 'MYSESSNAME');      //×Ô¶¨Òåsession_name
-            ini_set('session.cookie_httponly', 1);      //¿ªÆôhttp-only,·ÀÖ¹¿Í»§¶ËjsÍ¨¹ıxssµÁÈ¡cookie
+            //ini_set('session.name', 'MYSESSNAME');      //è‡ªå®šä¹‰session_name
+            ini_set('session.cookie_httponly', 1);      //å¼€å¯http-only,é˜²æ­¢å®¢æˆ·ç«¯jsé€šè¿‡xssç›—å–cookie
 
             if (in_array($limiter, array('public', 'private', 'nocache', 'private_no_expire'))) {
-                session_cache_limiter($limiter);        //²Î¿¼:http://www.9enjoy.com/pragma-no-cache-session/
+                session_cache_limiter($limiter);        //å‚è€ƒ:http://www.9enjoy.com/pragma-no-cache-session/
             }
 
-            ini_set('session.gc_maxlifetime', 4*3600);    //session¹ıÆÚÊ±¼ä£¬Æô¶¯À¬»ø»ØÊÕ»úÖÆ
+            ini_set('session.gc_maxlifetime', 4*3600);    //sessionè¿‡æœŸæ—¶é—´ï¼Œå¯åŠ¨åƒåœ¾å›æ”¶æœºåˆ¶
             session_start();
         }
     

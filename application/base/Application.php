@@ -1,6 +1,8 @@
 <?php
 namespace base;
 
+use helpers\Cache\CacheFactory;
+
 class Application {
     protected static $instance;
     protected static $db;
@@ -18,9 +20,10 @@ class Application {
         return self::$instance;
     }
     static function get_db($instance='master'){
+
         $master = Application::getInstance()->config['database'][$instance];
         if(empty(self::$db[$instance])){
-            self::$db[$instance] =   medoo::getInstance($master);
+            self::$db[$instance] =   medoo::getInstance($master,CacheFactory::getInstance($master['query_cached']));
         }
         return self::$db[$instance];
     }

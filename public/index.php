@@ -13,7 +13,8 @@ base\Application::getInstance(APP_PATH)->run();
 if(DEBUG){
 	echo "<pre>";
 	print_r(base\Application::get_db()->log());
-    print_r(\helpers\Debug::last_log());
+    print_r(base\Application::get_db('slave')->log());
+//    print_r(\helpers\Debug::last_log());
 	
 }
 
