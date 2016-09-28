@@ -421,7 +421,6 @@ class medoo
             if (!empty($where_AND))//AND
             {
                 $value = array_values($where_AND);
-                var_dump($value);
                 $where_clause = ' WHERE ' . $this->data_implode($where[ $value[0] ], ' AND');
 
             }

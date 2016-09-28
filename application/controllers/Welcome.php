@@ -1,20 +1,69 @@
 <?php
 namespace controllers;
+use base\Application;
 use base\BaseController;
-use helpers\Debug;
+
 use helpers\Email;
 use helpers\ErrorCode;
 use helpers\Msg;
 use helpers\Tools;
 use helpers\Validate;
 use helpers\Arr;
-
+use helpers\Timer;
+use helpers\Queue;
+use models\Logic\Oauth;
+use helpers\Http;
 class Welcome extends BaseController{
 	public $render_engine = 'php';
-	
+
+
+    public function add_user(){
+        $user = 'test';
+        $pass = '123456';
+        $m_oauth = new Oauth();
+        $result = $m_oauth->add_api_user($user,$pass);
+        var_dump($result);
+    }
+
+    public function http_get(){
+        $url = 'http://127.0.0.1/test/wei/public/index.php/auth/debug';
+        $token_data = Http::client()->auth_basic('test','123456')->get($url, array('grant_type' => 'client_credentials'))->html();
+        var_dump($token_data);
+    }
+
+    public function queue(){
+
+        $a = array(
+            'id'=>microtime(true),
+            'time'=>time(),
+            'cid'=>7613,
+            'message'=>'this is a message',
+        );
+        array_push($GLOBALS['list'],$a);
+        var_dump($GLOBALS['list']);
+        //Queue::push($a);
+
+    }
+
+    public function queue1(){
+        var_dump(Queue::$queue_list);
+        $a = array(
+            'id'=>microtime(true),
+            'time'=>time(),
+            'cid'=>7613,
+            'message'=>'this is a message',
+        );
+        Queue::push($a);
+        var_dump(Queue::$queue_list);
+    }
+
+
     public function index(){
-        echo "<pre>";
-        Debug::print_stack_trace();
+         $db = Application::get_db('slave');
+         $passengers = $db->get('jp_passenger','*');
+         var_dump($passengers);
+//        echo "<pre>";
+//        Debug::print_stack_trace();
     }
     public function trigger_error(){
        // trigger_error('hello');
