@@ -73,12 +73,13 @@ class Application {
             $method = 'index';
         }
         $class = ucwords($class);
+        $this->controller = $class;
         $class = empty($path)?'\\controllers\\'.$class:"\\controllers\\{$path}\\".$class;
-        $this->controller = new $class;
+        $controller = new $class;
 
-        if(method_exists($this->controller,$method)){
+        if(method_exists($controller,$method)){
             $this->action = $method;
-            $this->controller->$method();
+            $controller->$method();
         }else{
             throw new \Exception("{$class} has not method {$method}");
         }

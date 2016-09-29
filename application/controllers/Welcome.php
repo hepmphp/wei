@@ -26,11 +26,18 @@ class Welcome extends BaseController{
     }
 
     public function http_get(){
-        $url = 'http://127.0.0.1/test/wei/public/index.php/auth/debug';
-        $token_data = Http::client()->auth_basic('test','123456')->get($url, array('grant_type' => 'client_credentials'))->html();
+        $url = 'http://127.0.0.1/test/wei/public/index.php/auth/get_access_token';
+        $token_data = Http::client()->debug(2)->auth_basic('test','123456')->get($url, array('grant_type' => 'client_credentials'))->json();
+        $url2 = 'http://127.0.0.1/test/wei/public/index.php/auth/init';
+        $result = Http::client()->debug(2)
+                                ->auth_bearer($token_data['data']['access_token'])
+                                ->get($url2)
+                                ->json();
         var_dump($token_data);
-    }
+        var_dump($result);
+        var_dump(Http::client()->print_last_log());
 
+    }
     public function queue(){
 
         $a = array(

@@ -87,11 +87,71 @@ class Http
         return $this;
     }
 
-    public function set_headers(array $headers)
-    {
-        $this->request_headers = $headers;
+    /**
+     * 设置一个 HTTP 请求头
+     *
+     * @param  string $name
+     * @param  string $value
+     * @return Client
+     */
+    public function set_header($name, $value) {
+        $name                         = $this->normalize_header($name);
+        $this->request_headers[$name] = $value;
+
         return $this;
     }
+
+    /**
+     * 设置多个 HTTP 请求头
+     *
+     * @param  array $headers
+     * @return Client
+     */
+    public function set_headers(array $headers) {
+        foreach ($headers as $name => $value) {
+           $this->set_header($name,$value);
+        }
+        return $this;
+    }
+
+    /**
+     * 获取 HTTP 请求头的各行
+     *
+     * @return array
+     */
+    public function header_lines() {
+        $headers = array();
+        foreach ($this->request_headers as $name => $value) {
+            $headers[] = $name . ': ' . $value;
+        }
+
+        return $headers;
+    }
+
+    /**
+     * 设置 HTTP referer
+     *
+     * @param  string $value
+     * @return Client
+     */
+    public function referer($value) {
+        $this->set_header('Referer', $value);
+
+        return $this;
+    }
+
+    /**
+     * 设置 HTTP 请求的 user agent
+     *
+     * @param  string $value
+     * @return Client
+     */
+    public function user_agent($value) {
+        $this->options[CURLOPT_USERAGENT] = $value;
+
+        return $this;
+    }
+
     protected function normalize_header($name)
     {
         $string = ucwords(str_replace('-', ' ', $name));
@@ -138,7 +198,7 @@ class Http
     public function cookie()
     {
         $this->options[CURLOPT_COOKIEFILE] = self::COOKIE_FILE;
-        $this->options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
+        $this->options[CURLOPT_COOKIEJAR]  =  self::COOKIE_FILE;
         return $this;
     }
     public function json()
@@ -174,9 +234,11 @@ class Http
             $curl_options[CURLOPT_POSTFIELDS] = $post_param; //post数据
         }
         $this->set_request_method($ch, $http_method);
+        // 设置 HTTP 头
+        $header_lines = $this->header_lines();
         $curl_options[CURLOPT_URL] = $url;
-        if (!empty($this->request_headers)) {
-            $curl_options[CURLOPT_HTTPHEADER] = $this->request_headers; //头部信息
+        if (!empty($header_lines)) {
+            $curl_options[CURLOPT_HTTPHEADER] = $header_lines; //头部信息
         }
         $curl_options = $curl_options + $this->options + $this->default_options();
         curl_setopt_array($ch, $curl_options);
@@ -208,15 +270,7 @@ class Http
     {
         return $this->request('PATCH', $url, $params);
     }
-    public function login($url, $params)
-    {
-        $login_options = array(
-            CURLOPT_COOKIESESSION => 1, //启用时curl会仅仅传递一个session cookie，忽略其他的cookie，
-            CURLOPT_COOKIEJAR => self::COOKIE_FILE, //连接结束后保存cookie信息的文件。
-        );
-        $this->set_options($login_options);
-        return $this->request('POST', $url, $params);
-    }
+
     public function download($remoteUrl, $localFile, $login = false)
     {
         $ch = curl_init($remoteUrl);
@@ -247,11 +301,11 @@ class Http
 }
 // get post login download put delete patch 等操作
 /*
-$result = \Tools\Http::client()
-    ->debug(2)
-    ->login('http://www.imooc.com/user/login', 'username=yangyun4814@gmail.com&password=yang995224814&remember=1')
-    ->cookie()
-    ->get('http://www.imooc.com/space/index');
+$result = \helpers\Http::client()
+                        ->debug(2)
+                        ->cookie()
+                        ->post('http://www.imooc.com/user/login',$login_param)
+                        ->get('http://www.imooc.com');
 echo $result->html();
 var_dump($result->status_code());
 */

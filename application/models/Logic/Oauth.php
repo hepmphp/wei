@@ -62,12 +62,11 @@ class Oauth {
               return $this->error(Oauth::ERROR_TOKEN_NULL);
           }
           $api_login = $this->m_api_login->find(['token'=>$token]);
-          if(empty($api_login)||$api_login['dateline']-time()<self::TOKEN_TIME){
+          if(empty($api_login)||$api_login['dateline']<time()){
               return $this->error(Oauth::ERROR_TOKEN);
           }
           return $this->sucess(0,['uid'=>$api_login['uid']]);
     }
-
 
     /**
      * @brief   get_access_token    从请求header头获取 HTTP authorization 请求头
@@ -75,7 +74,7 @@ class Oauth {
      * @Returns String|NULL
      */
     public function get_access_token() {
-        $authorization = $_SERVER["HTTP_AUTHORIZATION"];
+        $authorization = apache_request_headers()['Authorization'];
         if (!$authorization) {
             $headers = $this->apache_request_headers();
             $authorization = !empty($headers['Authorization']) ? $headers['Authorization'] : null;
@@ -89,7 +88,7 @@ class Oauth {
             return null;
         }
 
-        return substr($authorization, strlen('Bearer '));
+        return trim(substr($authorization, strlen('Bearer ')));
     }
 
     function apache_request_headers(){
@@ -132,7 +131,8 @@ class Oauth {
             $this->error(Oauth::ERROR_PASSWORD);
         }
         $time = time();
-        $api_login = $this->m_api_login->find(['AND'=>['uid'=>$api_user['uid'],'dateline[>]'=>$time-self::TOKEN_TIME]]);
+        $api_login = $this->m_api_login->find(['AND'=>['uid'=>$api_user['uid'],'dateline[>]'=>$time]]);
+
         if(!empty($api_login)){
             $token = $api_login['token'];
             $dateline = $api_login['dateline'];
