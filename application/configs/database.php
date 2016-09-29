@@ -2,19 +2,21 @@
 
 $config['master'] = [
     'database_type' => 'mysql',
-    'database_name' => 'cgfx',
-    'server' => 'localhost',
+    'database_name' => 'web',
+    'server' => '127.0.0.1',
     'username' => 'root',
     'password' => '',
-    'charset' => 'gbk'
+    'charset' => 'gbk',
+    'query_cached'=>false,
 ];
 $config['slave'] = [
     'database_type' => 'mysql',
-    'database_name' => 'hotel',
-    'server' => 'localhost',
-    'username' => 'root',
-    'password' => '',
-    'charset' => 'gbk'
+    'database_name' => 'jipiao',
+    'server' => '192.168.40.125',
+    'username' => 'cncn',
+    'password' => 'cncn@123#456',
+    'charset' => 'gbk',
+    'query_cached'=>\helpers\Cache\CacheFactory::FILE,
 ];
 
 return $config;

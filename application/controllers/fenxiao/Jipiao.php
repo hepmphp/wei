@@ -22,6 +22,11 @@ class Jipiao extends BaseController{
         $this->view->display('fenxiao/jipiao_index');
     }
 
+    public function tables(){
+        $db = base\Application::get_db();
+        Tools::tables_to_model($db);
+    }
+
     public function test_list(){
         $m_jp_order = new Table\JipiaoOrder();
         $per_page = 10;

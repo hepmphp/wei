@@ -3,12 +3,15 @@ namespace base;
 
 abstract class BaseController{
 
+    public  $app = null;
+
     protected $render_engine = 'Smarty';
 
     protected $view;
 
 
     public function __construct() {
+        $this->app = Application::getInstance();
         $this->make_view();
     }
 

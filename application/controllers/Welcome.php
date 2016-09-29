@@ -1,39 +1,81 @@
 <?php
 namespace controllers;
+use base\Application;
 use base\BaseController;
-use helpers\Debug;
+
 use helpers\Email;
 use helpers\ErrorCode;
 use helpers\Msg;
 use helpers\Tools;
 use helpers\Validate;
 use helpers\Arr;
-use helpers\Ftp;
-
+use helpers\Timer;
+use helpers\Queue;
+use models\Logic\Oauth;
+use helpers\Http;
 class Welcome extends BaseController{
 	public $render_engine = 'php';
-	
+
+
+    public function add_user(){
+        $user = 'test';
+        $pass = '123456';
+        $m_oauth = new Oauth();
+        $result = $m_oauth->add_api_user($user,$pass);
+        var_dump($result);
+    }
+
+    public function http_get(){
+        $url = 'http://127.0.0.1/test/wei/public/index.php/auth/get_access_token';
+        $token_data = Http::client()->debug(2)->auth_basic('test','123456')->get($url, array('grant_type' => 'client_credentials'))->json();
+        $url2 = 'http://127.0.0.1/test/wei/public/index.php/auth/init';
+        $result = Http::client()->debug(2)
+                                ->auth_bearer($token_data['data']['access_token'])
+                                ->get($url2)
+                                ->json();
+        var_dump($token_data);
+        var_dump($result);
+        var_dump(Http::client()->print_last_log());
+
+    }
+    public function queue(){
+
+        $a = array(
+            'id'=>microtime(true),
+            'time'=>time(),
+            'cid'=>7613,
+            'message'=>'this is a message',
+        );
+        array_push($GLOBALS['list'],$a);
+        var_dump($GLOBALS['list']);
+        //Queue::push($a);
+
+    }
+
+    public function queue1(){
+        var_dump(Queue::$queue_list);
+        $a = array(
+            'id'=>microtime(true),
+            'time'=>time(),
+            'cid'=>7613,
+            'message'=>'this is a message',
+        );
+        Queue::push($a);
+        var_dump(Queue::$queue_list);
+    }
+
+
     public function index(){
-        echo "<pre>";
-        Debug::print_stack_trace();
+         $db = Application::get_db('slave');
+         $passengers = $db->get('jp_passenger','*');
+         var_dump($passengers);
+//        echo "<pre>";
+//        Debug::print_stack_trace();
     }
     public function trigger_error(){
        // trigger_error('hello');
         $a['a'] = 0;
         var_dump($a['b']);
-    }
-
-   
-
-
-
-    public function ftp(){
-          var_export(Ftp::getInstance()->list_files());
-      //  Ftp::getInstance()->mk_subdirs()
-    //    $mkdirStatus = $this->ftp->ftp_mksubdirs('',$rometeFileDir);
-      //  $this->ftp->upload($localFile,$remoteFile)
-           
-       
     }
 
     public function  send_mail(){
@@ -45,68 +87,16 @@ class Welcome extends BaseController{
    }
 
     public function test_validate(){
-
-
         $data = array(
-            'base'=>'',
-            'check_id_card'=>'',
-            'chinese'=>'124',
-            'decimal'=>'12',
-            'email'=>'hepm',
-            'length'=>123,
-            'gender'=>3,
-            'gt'=>99,
-            'inarr'=>1,
-//            'ir'=>1,
-//            'int'=>'1',
-//            'ip'=>'127.0.01',
-//            'ml'=>'11111111111111111111111111111111111111111111111',
-//            'minl'=>'1',
-//            'mobile'=>'15210',
-//            'numeric'=>'12a',
-//            'qq'=>'123',
-//            'required'=>'1',
-//            'date'=>'aaa',
-//            'time'=>'aaa',
-//            'url'=>'url',
+            'id'=>1,
         );
-        $validate_rules = [
-            'base'         =>[[Validate::BASE64,'输入的字段不能为空'],[Validate::REQUIRED,'输入的字段不能为空']],
-            'check_id_card'=>[[Validate::REQUIRED],[Validate::CHECKIDCARD]],
-            'chinese'      =>[Validate::CHINESE],
-            'decimal'      =>[Validate::DECIMAL],
-            'email'        =>[Validate::EMAIL],
-            'length'       =>[Validate::LENGTH,'','',10],
-            'gender'       =>[Validate::GENDER],
-            'gt'           =>[Validate::GREATETHAN,'','',100],
-            'inarr'        =>[Validate::INARRAY,'','',[2,3,4,5]],
-//            'ir'           =>[Validate::INRANGE,'值必须在90,100之间',-10,[90,10]],
-//            'int'          =>[Validate::INTEGER,'值必须是整形',-11],
-//            'ip'           =>[Validate::IP,'ip错误',-12],
-//            'ml'           =>[Validate::MAXLENGTH,'最长不能超过15',-13,15],
-//            'minl'         =>[Validate::MINLENGTH,'最小不能小于2个字符',-14,2],
-//            'mobile'       =>[Validate::MOBILE,'手机号码错误',-15],
-//            'numeric'      =>[Validate::NUMERIC,'必须是数值型',-16],
-//            'qq'           =>[Validate::QQ,'qq错误',-17],
-//            'required'     =>[Validate::REQUIRED,'字段不能为空',-18],
-//            'date'         =>[Validate::DATE,'日期格式错误',-19],
-//            'time'         =>[Validate::TIME,'时间格式错误',-20],
-//            'url'          =>[Validate::URL,'url格式错误',-21],
-        ];
-        $validate = new Validate($data,$validate_rules);
-        if(!$validate->validate()){
-            echo "<pre>";
-            print_r($validate->get_error(false));
-        }
 
-        /*
        if(!Validate::date($data['id'])){
             print_r(Msg::status_msg(ErrorCode::DB,Validate::get_error(Validate::DATE)));
        }
        if(!Validate::email($data['id'])){
            print_r(Msg::status_msg(-1,Validate::get_error(Validate::EMAIL)));
         }
-        */
     }
 
     public function test_arr(){

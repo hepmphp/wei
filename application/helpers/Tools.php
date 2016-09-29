@@ -11,7 +11,7 @@ class Tools{
      * @param $db
      */
     public static  function tables_to_model($db,$table=''){
-        $db_name = 'cgfx';
+        $db_name = 'web';
         $tables_path = APP_PATH.'/models/Table/';
         $db->query("USE {$db_name}");
         if(!empty($table)){
@@ -21,11 +21,13 @@ class Tools{
         }
 
         $all_tables = Arr::getColumn($result,'0');
+
         foreach($all_tables as $table){
             $model_table = str_replace("\t",'',ucwords(str_replace(array('_'),array("\t"),strstr($table,'_'))));
             $template    = file_get_contents($tables_path.'Template.php');
             $model_data  = str_replace(array('Template','TABLE'),array($model_table,$db_name.'.'.$table),$template);
             $file_name   = $tables_path.$model_table.'.php';
+            echo $file_name;
             file_put_contents($file_name,$model_data);
         }
     }
