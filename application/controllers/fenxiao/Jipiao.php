@@ -28,19 +28,19 @@ class Jipiao extends BaseController{
         $cur_page = isset($_GET['page'])?$_GET['page']:0;
         $cur_page = max($cur_page,1);
         $m_jp_order = new Table\Order();
-        $where = [
-            "AND"=>[
-                'order_date[>]'=>time()-100*86400,
-                'order_date[<]'=>time()+100*86400,
-             ],
-        ];
+        // $where = [
+        //     "AND"=>[
+        //         'order_date[>]'=>time()-100*86400,
+        //         'order_date[<]'=>time()+100*86400,
+        //      ],
+        // ];
         $total = $m_jp_order->get_total($where);
         $where['ORDER'] = ['id DESC'];
         $where['LIMIT'] = [$cur_page,$per_page];
         $order_list = $m_jp_order->get_list($where,'*');
         $m_jp_order->fill_list($order_list);
         echo "<pre>";
-        print_r($order_list);
+        var_export($order_list);
         $page_str = Page::get_str($cur_page,$total,$per_page);
         echo "<div>{$page_str}</div>";
     }

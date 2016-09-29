@@ -5,8 +5,8 @@ use models\Jipiao\Passenger;
 class Tree extends BaseController{
     protected $render_engine= 'php';
     public function index(){
-	    $m_passenger = new Passenger();
-	 	$db = $m_passenger->db;
+ 
+	    $db = \base\Application::get_db();
         $admin_menus = $db->select('cgfx_admin_menu','*');
         foreach($admin_menus as $menu){
 			$data_menus[] = array(
