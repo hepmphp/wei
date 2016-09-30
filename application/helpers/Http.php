@@ -18,84 +18,25 @@ class Http {
      * @var int
      */
     protected $debug_level = 1;
-
-    /**
-     * 完整的 HTTP 请求头
-     *
-     * @var string
-     */
-    protected $request_header = '';
-
-    /**
-     * 完整的 HTTP 请求 body
-     *
-     * @var string
-     */
-    protected $request_body = '';
-
-    /**
-     * debug 信息
-     *
-     * @var string
-     */
-    protected $debug_info = '';
-
-    /**
-     * http 请求头
-     *
-     * @var array
-     */
-    protected $request_headers = array();
-
-    /**
-     * http 响应头
-     *
-     * @var array
-     */
-    protected $response_headers = array();
-
-    /**
-     * http 响应头的各行
-     *
-     * @var array
-     */
-    protected $response_header_lines = array();
-
-    /**
-     * HTTP 响应代码
-     *
-     * @var int
-     */
-    public $status_code = null;
-
-    /**
-     * CURL 返回的错误代码
-     *
-     * @var int
-     */
-    protected $error_code = 0;
-
-    /**
-     * CURL 返回的错误信息
-     *
-     * @var string
-     */
-    protected $error_info = '';
-
-    /**
-     * CURL 用户自定义选项
-     *
-     * @var array
-     */
-    protected $options = array();
-
+    protected $request_header = '';//完整的 HTTP 请求头
+    protected $request_body = '';//完整的 HTTP 请求 body
+    protected $debug_info = '';//debug 信息
+    protected $request_headers = array();// http 请求头
+    protected $response_headers = array();//http 响应头
+    protected $response_header_lines = array();//http 响应头的各行
+    public $status_code = null;// HTTP 响应代码
+    protected $error_code = 0;// CURL 返回的错误代码
+    protected $error_info = '';// CURL 返回的错误信息
+    protected $options = array();//CURL 用户自定义选项
     CONST COOKIE_FILE = 'cookiefile';
-    CONST CURL_LOG_PATH = './curl.log';
-    public static $_instance = null;
-    public $formart = 'html';
-    public $log = 0;
-	public $fp;
-    public $response =null;
+    CONST CURL_LOG_PATH = './log/curl.log';
+    CONST CURL_LOG_TRACE = './log/curl_trace.log';
+    CONST CURL_PROFILE_LOG_PATH = './log/curl_profile.log';
+    public static $_instance = null;//Http请求实列
+    public $formart = 'html';//请求后处理的响应格式
+    public $log = 0;//是否记录日志
+	public $fp;//fp指针
+    public $response =null;//响应信息
 
     public static function client($format='html')
     {
@@ -128,8 +69,11 @@ class Http {
         }
         return $this;
     }
-	
-	public function debug_log($ch){
+	/***
+     * 调试日志
+     * @param $ch
+     */
+    public function debug_log($ch){
 		if ($this->debug_level) {
 			if ($this->debug_level === 1) {
 				$this->request_header = curl_getinfo($ch, CURLINFO_HEADER_OUT);
@@ -146,16 +90,34 @@ class Http {
 		}
 	}
 
+    /**
+     * 启用ssl
+     * @return $this
+     */
     public function ssl()
     {
         $this->options[CURLOPT_SSL_VERIFYPEER] = false; // 对认证证书来源的检查
         return $this;
     }
+
+    /**
+     * 启用日志
+     * @param int $log
+     * @return $this
+     */
     public function log($log=1)
     {
+        if(!is_dir('./log')){
+            mkdir('./log',0755,true);
+        }
         $this->log = $log;
         return $this;
     }
+
+    /**
+     * 启用cookie
+     * @return $this
+     */
     public function cookie()
     {
         $this->options[CURLOPT_COOKIEFILE] = self::COOKIE_FILE;
@@ -460,14 +422,16 @@ class Http {
             $this->request_body = $params;
             curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         }
-
+        if($this->log){
+            $bench_start = microtime(true)*100;
+            error_log(date('Y-m-d H:i:s').$url.'==>request:'.json_decode($params).PHP_EOL,3,self::CURL_LOG_TRACE);
+        }
         // 设置 HTTP 头
         $header_lines = $this->header_lines();
         if ($header_lines) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header_lines);
         }
         $this->request_headers = array();  // 重置HTTP请求头
-
         $this->response          = curl_exec($ch);
         $this->status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
@@ -475,13 +439,21 @@ class Http {
             $this->error_code = curl_errno($ch);
             $this->error_info = curl_error($ch);
         }
-
-	    $this->debug_log($ch);
-        curl_close($ch);
-
-        if($this->log){//日志
-            error_log(var_export($this->response, true) . PHP_EOL, 3, self::CURL_LOG_PATH);
+        if($this->log){
+            $bench_end = microtime(true)*100;
+            $time_cost = $bench_end-$bench_start;
+            error_log(date('Y-m-d H:i:s').$url."\t".$time_cost.'ms==>response:'.var_export($this->response).PHP_EOL,3,self::CURL_LOG_TRACE);
         }
+	    $this->debug_log($ch);
+        if($this->log){//日志
+            $info = curl_getinfo($ch);
+            $log_time = date('Y-m-d H:i:s');
+            $result_format =  "total_time:[%s]s  http_code:[%s] url[%s] size_download:[%s]kb speed_download:[%s]kb/s request:[%s]".PHP_EOL;
+            $result_msg=  sprintf($result_format,$info['total_time'],$info['http_code'],$info['url'],$info['size_download']/1024,$info['speed_download']/1024,json_encode($params));
+            error_log($log_time.$result_msg, 3, self::CURL_PROFILE_LOG_PATH);
+            error_log($log_time.PHP_EOL.var_export($this->response,true).str_repeat('==',100).PHP_EOL, 3, self::CURL_LOG_PATH);
+        }
+        curl_close($ch);
         if($this->formart=='json'){
             $data = json_decode($this->response, true);
             return $data;
