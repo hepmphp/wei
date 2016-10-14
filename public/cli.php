@@ -1,5 +1,5 @@
 <?php
-define('DEBUG',false);
+define('DEBUG',true);
 define('BASE_PATH',__DIR__);
 define('APP_PATH',BASE_PATH.'/../application');
 include APP_PATH.'/base/Loader.php';
@@ -23,6 +23,7 @@ if(DEBUG){
 }
 
 /*
+     ÓÃ·¨
  *   php -f cli.php  welcome/id
  *   php -f cli.php  test/admin/test
  */
