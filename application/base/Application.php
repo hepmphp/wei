@@ -2,12 +2,14 @@
 namespace base;
 
 use helpers\Cache\CacheFactory;
+use helpers\Input;
 
 class Application {
     protected static $instance;
     protected static $db;
     public $config;
     public $app_path;
+    public $path;
     public $controller;
     public $action;
 
@@ -59,7 +61,7 @@ class Application {
 
     public function dispatch(){
         $this->_parse_routes();
-        $path_info = $this->_parse_path_info();;
+        $path_info = $this->_parse_path_info();
         $path_info = array_values(array_filter($path_info));
         $path = '';
         $class = '';
@@ -72,6 +74,7 @@ class Application {
             $class = $path_info[0];
             $method = 'index';
         }
+        $this->path = $path;
         $class = ucwords($class);
         $this->controller = $class;
         $class = empty($path)?'\\controllers\\'.$class:"\\controllers\\{$path}\\".$class;
@@ -117,7 +120,17 @@ class Application {
     }
 
     public function _parse_path_info(){
-        $path_info = isset($_SERVER['PATH_INFO'])?explode('/',$_SERVER['PATH_INFO']):array(DEFAULT_CONTROLLER);
+        $path_info = isset($_SERVER['PATH_INFO'])&&!empty($_SERVER['PATH_INFO'])?explode('/',$_SERVER['PATH_INFO']):array(DEFAULT_CONTROLLER);
+        /**g分组 m控制器 a方法*/
+        $g = Input::get('g');
+        $m = Input::get('m');
+        $a = Input::get('a');
+        if($m&&$a){
+            $path_info = array();
+            $path_info[] = $g;
+            $path_info[] = $m;
+            $path_info[] = $a;
+        }
         return $path_info;
     }
 
