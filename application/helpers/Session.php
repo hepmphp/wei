@@ -1,7 +1,7 @@
 <?php 
-namespace helper;
+namespace helpers;
 
-class SessionTools{
+class Session{
 	 /**
      * @brief   diy_session_destroy     彻底注销session
      *

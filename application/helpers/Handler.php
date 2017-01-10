@@ -16,8 +16,8 @@ register_shutdown_function(array('helpers\Handler','shutdown_handler'));
  * @package helpers
  */
 class Handler {
-    const LOG_PATH = '/log/error_log.log';
-    const LAST_ERROR_lOG = '/log/last_error.html';
+    const LOG_PATH = './log/error_log.log';
+    const LAST_ERROR_lOG = './log/last_error.html';
     public static $levels = array(
         E_ERROR  			=>	'Error',
         E_WARNING			=>	'Warning',
@@ -49,7 +49,7 @@ class Handler {
         $referer = isset($_SERVER['HTTP_REFERER'])?$_SERVER['HTTP_REFERER']:'';
 
         $log_message_format = sprintf($log_message,$errcode,$errstr,$errfile,$errline,$url,$referer);
-        error_log($log_message_format.PHP_EOL,3, BASE_PATH.self::LOG_PATH);
+        error_log($log_message_format.PHP_EOL,3,self::LOG_PATH);
     }
 
     /**
@@ -69,7 +69,7 @@ class Handler {
             $email_content[] = "User_IP:".$_SERVER['REMOTE_ADDR'];
             $email_content[] = "Time:".$time;
             $email_content_msg = "<pre>".$email_msg."<br/>".implode("<br/>",$email_content);
-            error_log($email_content_msg."<hr>",3,BASE_PATH.self::LAST_ERROR_lOG);
+            error_log($email_content_msg."<hr>",3,self::LAST_ERROR_lOG);
         }
     }
 

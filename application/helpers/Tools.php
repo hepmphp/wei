@@ -11,7 +11,7 @@ class Tools{
      * @param $db
      */
     public static  function tables_to_model($db,$table=''){
-        $db_name = 'web';
+        $db_name = 'deploy';
         $tables_path = APP_PATH.'/models/Table/';
         $db->query("USE {$db_name}");
         if(!empty($table)){

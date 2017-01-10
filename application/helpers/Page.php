@@ -6,7 +6,7 @@ class Page{
     private $_total_num; //总记录数
     private $_pagesize = 10; //每页显示数目
     private $_pagelen = 5; //页面显示数目(长度)
-    private $_pageclass = 'pagination'; //所用分页样式类名
+    private $_pageclass = 'pages'; //所用分页样式类名
     private $_pagestring; //分页HTML字符串
     private $_total_pages; //总页数
     private $_pageoffset = 3; //页数偏移量
@@ -42,13 +42,10 @@ class Page{
             $parse_url   = parse_url($current_url);
 
             if ( isset($parse_url["query"]) ) {
-                $urlquery  = preg_replace("/(^|&)page={$this->_current_page}/", "", $parse_url["query"]);
-                $urlquery  = preg_replace("/(^|&)page=/", "", $urlquery);
-                $current_url = str_replace($parse_url["query"], $urlquery, $current_url);   
-                if($urlquery) $current_url.="&page=";
-                else $current_url.="page=";
+                $current_url = preg_replace('/page=[^&]*/',"page=%s",$current_url);
+
             } else {
-                $current_url.="?page=";
+                $current_url.="?page=%s";
             }
             $this->_current_url = $current_url;
         } else {
@@ -74,11 +71,12 @@ class Page{
         $this->_pageoffset = ($this->_pagelen - 1) / 2;
     }
     private function _buildOutput() {
-        $this->_pagestring  = sprintf($this->total_num_str,$this->_total_num);
+        $this->_pagestring  = '';
         $this->_pagestring .= $this->_pageclass ? '<div class="' . $this->_pageclass . '">' : '<div>';
-        $this->_pagestring.= '<ul>';
+        $this->_pagestring.= sprintf($this->total_num_str,$this->_total_num);
         $this->_buildOutputPageList();
-        $this->_pagestring .= '</ul></div>';
+        $this->_pagestring .= '&nbsp;&nbsp;转到&nbsp;&nbsp;<input size="3" title="" type="text">&nbsp;&nbsp;页';
+        $this->_pagestring .= '</div>';
     }
     private function _buildOutputPageList() {
         $pagemin = 1;
@@ -86,11 +84,11 @@ class Page{
         
         if( $this->_current_page != 1 ) {
             $prev = $this->_current_page-1 > 1 ? $this->_current_page-1 : 1;
-            $this->_pagestring .= "<li><a href=\"{$this->_current_url}1\">".$this->first_page."</a></li>
-            <li><a href=\"{$this->_current_url}".$prev."\">".$this->prev_page."</a></li>";
+            $this->_pagestring .= "<a href='".$this->getPageUrl(1)."'>".$this->first_page."</a>
+            <a href='".$this->getPageUrl($prev)."'>".$this->prev_page."</a>";
         } else {
-            $this->_pagestring .= "<li class=\"disabled\"><a href=\"javascript:;\">".$this->first_page."</a></li>
-            <li class=\"disabled\"><a href=\"javascript:;\">".$this->prev_page."</a></li>";
+            $this->_pagestring .= "<a href=\"javascript:;\">".$this->first_page."</a>
+            <a href=\"javascript:;\">".$this->prev_page."</a>";
         }
         
         //Ensure page offset number
@@ -110,20 +108,25 @@ class Page{
         }
         for($i = $pagemin; $i <= $pagemax; $i++){
             if($i == $this->_current_page){
-                $this->_pagestring .= '<li class="active"><a href="javascript:;">'.$i.'</a></li>';
+                $this->_pagestring .= "<span class=\"current\">{$i}</span>"; //
             } else {
-                $this->_pagestring .= "<li><a href=\"{$this->_current_url}{$i}\">$i</a></li>";
+                $this->_pagestring .= "<a href='".$this->getPageUrl($i)."'>".$i."</a>";
             }
         }
         if( $this->_current_page != $this->_total_pages){
             $next = $this->_current_page+1 > $this->_total_pages ? $this->_total_pages : $this->_current_page+1;
-            $this->_pagestring .= "
-                <li><a href=\"{$this->_current_url}". $next ."\">".$this->next_page."</a></li>
-                <li><a href=\"{$this->_current_url}{$this->_total_pages}\">".$this->last_page."</a></li>";
+            $this->_pagestring .= "<a href='".$this->getPageUrl($next)."'>".$this->next_page."</a>";
+            $this->_pagestring .= "<a href='".$this->getPageUrl($this->_total_pages)."'>".$this->last_page."</a>";
         } else {
             $this->_pagestring .= "
-                <li class=\"disabled\"><a href=\"javascript:;\">".$this->next_page."</a></li>
-                <li class=\"disabled\"><a href=\"javascript:;\">".$this->last_page."</a></li>";
+                <a href=\"javascript:;\">".$this->next_page."</a>
+                <a href=\"javascript:;\">".$this->last_page."</a>";
         }
+
+    }
+
+    public function getPageUrl($page){
+        $url =  sprintf($this->_current_url,$page);
+        return $url;
     }
 }
