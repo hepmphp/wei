@@ -45,6 +45,36 @@ class Msg {
     }
 
     /**
+     * 消息错误
+     * @param $msg
+     * @param string $data
+     * @param bool $exit_flag
+     */
+    public static function error($msg,$data='',$exit_flag=true){
+        if(Msg::is_ajax()){
+            Msg::exit_msg($msg,-1,$data,$exit_flag);
+        }else{
+            //TODO::页面跳转
+            Msg::exit_msg($msg,-1,$data,$exit_flag);
+        }
+    }
+
+    /**
+     * 消息成功
+     * @param $msg
+     * @param string $data
+     * @param bool $exit_flag
+     */
+    public static function success($msg,$data='',$exit_flag=true){
+        if(Msg::is_ajax()){
+            Msg::exit_msg($msg,0,$data,$exit_flag);
+        }else{
+            //TODO::页面跳转
+            Msg::exit_msg($msg,0,$data,$exit_flag);
+        }
+    }
+
+    /**
      * @brief   exit_msg    返回消息
      *
      * @Param   $msg        提示消息
@@ -62,13 +92,13 @@ class Msg {
         );
         header('Content-type:application/x-javascript');
         if ($exit_flag) {
-            exit(self::cncn_json_encode($res));
+            exit(self::json_encode($res));
         } else {
-            echo self::cncn_json_encode($res);
+            echo self::json_encode($res);
         }
     }
-    public static function cncn_json_encode($data) {
-        return json_encode(Encoding::g2u($data));
+    public static function json_encode($data) {
+        return json_encode($data);
     }
     /**
      *判断是否是异步请求
