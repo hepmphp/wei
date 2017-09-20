@@ -75,7 +75,7 @@ class Curl {
         }
         curl_setopt_array($ch, $curl_options);
         $res = curl_exec($ch);
-        $data = json_encode($res,true);
+        $data = json_decode($res,true);
         if(json_last_error() != JSON_ERROR_NONE){
             $data = $res;
         }
