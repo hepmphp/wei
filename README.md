@@ -36,12 +36,13 @@ a small php mvc code structure
 
 1.安装说明
 ====================================================================
-1.git clone https://github.com/project007/wei.git
-2.配置数据库
-3.http://wei.local/web/index.php 访问入口
+- git clone https://github.com/project007/wei.git
+- 配置数据库
+- http://wei.local/web/index.php 访问入口
 
 2.路由说明
 ================================================================================
+```
 #http://wei.local/index.php/welcome/index 默认控制器方法
 访问
 http://wei.local/index.php?m=index&a=login
@@ -53,7 +54,7 @@ http://wei.local/index.php/index/login
 $route['login.html'] = 'index/login';
 更多设置参考
 http://codeigniter.org.cn/user_guide/general/routing.html
-
+```
 3.类库说明
 ==============================================================================
 缓存
