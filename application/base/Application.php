@@ -3,7 +3,9 @@ namespace base;
 
 use helpers\Cache\CacheFactory;
 use helpers\Input;
+use helpers\Session;
 use base\db\QueryBuilder;
+
 
 class Application {
     protected static $instance;
@@ -51,6 +53,10 @@ class Application {
 		//载入系统常量
 		include_once $this->app_path.'/configs/const.php';
         //db
+
+        //sessoin sessoin初始化
+        Session::init();
+
         //缓存
     }
 

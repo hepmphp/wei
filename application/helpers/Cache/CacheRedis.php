@@ -37,9 +37,9 @@ class CacheRedis extends Cache {
         $func = $options['persistent'] ? 'pconnect' : 'connect';
         $this->redis = new \Redis();
         $this->connected = $options['timeout'] === false ?
-            $this->redis->$func($options['host'], $options['port']) :
-            $this->redis->$func($options['host'], $options['port'], $options['timeout']);
-        $this->redis->auth('redis123456!@#$%^');
+        $this->redis->$func($options['host'], $options['port']) :
+        $this->redis->$func($options['host'], $options['port'], $options['timeout']);
+      //  $this->redis->auth('redis123456!@#$%^');
     }
 
     /**

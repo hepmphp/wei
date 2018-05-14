@@ -1,5 +1,7 @@
 <?php 
 namespace helpers;
+use base\session\SessionRedis;
+use base\Application;
 
 class Session{
 	 /**
@@ -15,6 +17,45 @@ class Session{
             );
         }
         session_destroy();
+    }
+
+    public static function set($key,$value){
+        $_SESSION[$key] = $value;
+    }
+
+    public static function get($key){
+        $data = isset($_SESSION[$key])?$_SESSION[$key]:array();
+        return $data;
+    }
+
+    /**
+     * session初始化 配置
+     */
+    public static function init(){
+        $session =  Application::getInstance()->config['config']['session'];
+        if(empty($config)){
+            $config = $session['SESSION_OPTIONS'];
+        }
+        ini_set('session.auto_start', 0);
+        if(isset($config['name']))            session_name($config['name']);
+        if(isset($config['path']))            session_save_path($config['path']);
+        if(isset($config['domain']))          ini_set('session.cookie_domain', $config['domain']);
+        if(isset($config['expire']))          ini_set('session.gc_maxlifetime', $config['expire']);
+        if(isset($config['use_trans_sid']))   ini_set('session.use_trans_sid', 1);
+//        if(isset($config['use_cookies']))     ini_set('session.use_cookies', $config['use_cookies']?1:0);
+//        if(isset($config['cache_limiter']))   session_cache_limiter($config['cache_limiter']);
+//        if(isset($config['cache_expire']))    session_cache_expire($config['cache_expire']);
+        if($session['SESSION_TYPE']=='Redis'){
+            $hander = new SessionRedis();
+            $hander->execute();
+        }
+
+        // 启动session
+        if(!empty($session['SESSION_AUTO_START']))
+        {
+            session_start();
+        }
+
     }
 
 
@@ -35,6 +76,8 @@ class Session{
             }
 
             ini_set('session.gc_maxlifetime', 4*3600);    //session过期时间，启动垃圾回收机制
+
+
             session_start();
         }
     

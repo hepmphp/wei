@@ -16,7 +16,7 @@ class CacheFactory {
         }elseif($type==self::MEMCACHED){
             return new Memcached($config);
         }elseif($type==self::REDIS){
-
+            return new CacheRedis($config);
         }
     }
 }
