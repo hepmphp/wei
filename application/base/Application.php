@@ -3,6 +3,7 @@ namespace base;
 
 use helpers\Cache\CacheFactory;
 use helpers\Input;
+use base\db\QueryBuilder;
 
 class Application {
     protected static $instance;
@@ -25,7 +26,7 @@ class Application {
 
         $master = Application::getInstance()->config['database'][$instance];
         if(empty(self::$db[$instance])){
-            self::$db[$instance] =   medoo::getInstance($master,CacheFactory::getInstance($master['query_cached']));
+            self::$db[$instance] =   QueryBuilder::getInstance($master);
         }
         return self::$db[$instance];
     }
@@ -136,3 +137,6 @@ class Application {
 
  
 }
+
+
+

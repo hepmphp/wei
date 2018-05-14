@@ -1,22 +1,22 @@
 <?php
 
 $config['master'] = [
-    'database_type' => 'mysql',
-    'database_name' => 'web',
-    'server' => '127.0.0.1',
-    'username' => 'root',
+    'host' => '127.0.0.1',
+    'dbname' => 'sdk_admin',
+    'username'=> 'root',
     'password' => '',
-    'charset' => 'gbk',
-    'query_cached'=>false,
+    'port' => 3306,
+    'charset' => 'utf8',
 ];
-$config['slave'] = [
-    'database_type' => 'mysql',
-    'database_name' => 'jipiao',
-    'server' => '192.168.40.125',
-    'username' => 'cncn',
-    'password' => 'cncn@123#456',
-    'charset' => 'gbk',
-    'query_cached'=>\helpers\Cache\CacheFactory::FILE,
+$config['sdk'] = [
+    'host' => '127.0.0.1',
+    'dbname' => 'sdk',
+    'username'=> 'root',
+    'password' => '',
+    'port' => 3306,
+    'charset' => 'utf8',
 ];
+
+
 
 return $config;

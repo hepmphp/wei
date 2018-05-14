@@ -1,6 +1,11 @@
 # wei
 a small php mvc code structure
 
+整体思路
+1.app  提供基本的路由和载入功能
+2.配置  常规配置信息 数据库配置 路由信息
+3.类库
+
 访问
 #http://127.0.0.1:10000/index.php/welcome/index 默认控制器方法
 #支持分组path/controller/action
@@ -15,7 +20,7 @@ $route['login.html'] = 'index/login';
 #Input
 
 
-#数据库 使用medoo
+#数据库 使用pdo
 
 #自动生成表模型
 $db = base\Application::get_db();

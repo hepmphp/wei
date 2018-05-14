@@ -2,7 +2,7 @@
 
 namespace controllers\admin;
 use base\BaseController;
-use models\Jipiao\Passenger;
+
 class Admin extends BaseController{
     protected $render_engine= 'php';
     public function index(){

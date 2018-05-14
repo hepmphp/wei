@@ -1,55 +1,31 @@
 <?php
-namespace helpers;
+namespace Hepm\Helpers;
 class Log
 {
-    public $log_path = './log/';
+    public static $log_path = './log/';
+    /**
+     * 设置日志路径
+     */
+    public static function dir($dir_path){
+        self::$log_path = $dir_path;
+    }
+    /***
+     *
+     * @param $message  消息
+     * @param $filename 文件
+     * @param $type     日志类型 common普通日志 pay支付日志  login登录日志 user用户日志 等等
+     */
+    public static function write($message,$filename,$type='common'){
+        $log_dir = "%s/%s/%s";//日志路径 日志类型 年 月 日
+        $dir = sprintf($log_dir,self::$log_path,$type,date('Y/m/d/'));
+        if(!is_dir($dir)){
+            mkdir($dir,0755,true);
+        }
+        $log_file = $dir.$filename;
 
-    public function __construct($log_path = './log/')
-    {
-        $this->log_path = $log_path;
+        $message = date('Y-m-d H:i:s')."\t";
+        $message .= $message.PHP_EOL;
+        error_log($message,3, $log_file);//接口请求写入日志
     }
 
-    public function write($file_name, $msg, $dir = 'api')
-    {
-        $file_name = strtolower($file_name);
-        if (!preg_match('/^[a-z0-9_]+$/', $file_name) || !preg_match('/^[a-z0-9_]+$/', $dir)) {
-            return FALSE;
-        }
-        $this->log_path = $this->log_path . $dir . '/';
-        file_exists($this->log_path) || mkdir($this->log_path, 0755, true);
-        if (!is_dir($this->log_path)) {
-            return FALSE;
-        }
-        $filepath = $this->log_path . $file_name . '_' . date('Y_m') . '.log';
-        $message = date('Y-m-d H:i:s') . ':  ';
-        $message .= $msg . "\n";
-        $result = error_log($message, 3, $filepath);
-        return $result;
-    }
-
-
-    function read($month = '', $filename = 'order_syn', $dir = 'api')
-    {
-        $month = (!empty($month) && preg_match('/^[\d]{4}\_[\d]{1,2}$/', $month)) ? $month : date('Y_m');
-        $filename = strtolower($filename);
-        if (!preg_match('/^[a-z0-9_]+$/', $filename)) {
-            $filename = 'order_syn';
-        }
-        if (!preg_match('/^[a-z0-9_]+$/', $dir)) {
-            $dir = 'api';
-        }
-
-        $filepath = $this->log_path . '/' . $filename . '_' . $month . '.log';
-        $str = $filepath;
-        if (!file_exists($filepath)) {
-            $str .= '<hr>not exists;';
-        } else {
-            $size = round(filesize($filepath) / 1024, 2) . 'KB';
-            $line_count = count(file($filepath));
-            $str .= " (FileSize: <b>$size</b> LineCount: <b>{$line_count}</b>)<hr>";
-            $str .= nl2br(file_get_contents($filepath));
-        }
-
-        return $str;
-    }
 }
