@@ -2,10 +2,10 @@
 a small php mvc code structure
 
 整体思路
-1.app  提供基本的路由和载入功能
-2.配置  常规配置信息 数据库配置 路由信息
-3.类库
-
+- app  提供基本的路由和载入功能
+- 配置  常规配置信息 数据库配置 路由信息
+- 类库
+```
 ├─application
 │  ├─base            框架核心
 │  │  ├─db           数据库查询构造器
@@ -31,7 +31,7 @@ a small php mvc code structure
 │  │  └─file
 │  └─log
 └─vendor           第三方类库
-
+```
 
 
 1.安装说明
