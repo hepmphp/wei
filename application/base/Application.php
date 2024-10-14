@@ -41,8 +41,11 @@ class Application {
 
 
     public function run(){
+       
         $this->handle_error_and_exception();
-        $this->init_dependences();
+     
+        //$this->init_dependences();
+      
         $this->dispatch();
 
 
@@ -53,11 +56,13 @@ class Application {
 		//载入系统常量
 		include_once $this->app_path.'/configs/const.php';
         //db
-
+   
         //sessoin sessoin初始化
         Session::init();
 
         //缓存
+
+    
     }
 
     public function handle_error_and_exception(){
@@ -67,9 +72,11 @@ class Application {
     }
 
     public function dispatch(){
+        
         $this->_parse_routes();
         $path_info = $this->_parse_path_info();
         $path_info = array_values(array_filter($path_info));
+      
         $path = '';
         $class = '';
         $method = '';
@@ -81,12 +88,18 @@ class Application {
             $class = $path_info[0];
             $method = 'index';
         }
+
+
+      
+
+
         $this->path = $path;
         $class = ucwords($class);
         $this->controller = $class;
         $class = empty($path)?'\\controllers\\'.$class:"\\controllers\\{$path}\\".$class;
+        // echo $class."|12".$method;exit();
         $controller = new $class;
-
+      
         if(method_exists($controller,$method)){
             $this->action = $method;
             $controller->$method();

@@ -77,7 +77,7 @@ if (empty($filename)) {
 		exit(); 
 	}else{
 		echo $filename."<hr>";
-		echo highlight_file(LOG_PATH.$filename);
+		highlight_file(LOG_PATH.$filename);
 	}
 }
 ?>

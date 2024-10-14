@@ -9,18 +9,22 @@ use helpers\Arr;
 use models\Table;
 use helpers\Input;
 class Jipiao extends BaseController{
-    protected $render_engine= 'Smarty';
+    protected $render_engine= 'php';
+
     public function index(){
-        echo $this->render_engine;
-        echo __METHOD__;
-        $data = array(
-            'test'=>100,
-            'test2'=>200,
-            'test3'=>300,
-        );
-        $this->view->assign($data);
-        $this->view->display('fenxiao/jipiao_index');
+        echo __FILE__;
     }
+//    public function index(){
+//        echo $this->render_engine;
+//        echo __METHOD__;
+//        $data = array(
+//            'test'=>100,
+//            'test2'=>200,
+//            'test3'=>300,
+//        );
+//        $this->view->assign($data);
+//        $this->view->display('fenxiao/jipiao_index');
+//    }
 
     public function tables(){
         $db = base\Application::get_db();
